@@ -31,7 +31,7 @@ grid=border(bottom="soft",sides="soft")
 striped=border("#E9E9E9",top="strong",bottom="soft",sides="soft",pattern=True)
 W=49900
 add_text(only(190,220,70,74),1800,True,align="CENTER",line=2400,after=1000)
-tab([[label(0,7000,2800,"✓ 평가내용 01",dark,color="#FFFFFF",size=1000,ratio=82),
+tab([[label(0,7000,2800,"평가내용 01",dark,color="#FFFFFF",size=1000,ratio=82),
       c(1,42900,2800,only(120,135,111,116),striped,size=1120,ratio=77)]],1100)
 
 def section_heading(num,y,gap=450):
@@ -94,21 +94,24 @@ def cards_row(y,h,mode):
     for i,(l,r) in enumerate([(57,220),(229,390),(400,560)]):
         if i: row.append(c(i*2-1,gap_width,h,"+" if mode=="body" else "",align="CENTER",bold=True,size=1450,color="#777777",line=1650))
         v=reg(l,r,y,y+3) if mode!="body" else reg(l,r,y,y+30)
-        if mode=="body" and i==0: v[-1]="➜ "+v[-1]
+        if mode=="body" and i==0: v[-1]="→ "+v[-1]
         row.append(c(i*2,card_width,h,v,{"head":outline,"body":white,"result":gray2}[mode],
                      bold=mode!="body",align="LEFT" if mode=="body" else "CENTER",
                      size=1080,ratio=80 if mode=="head" else (77 if mode=="result" and i==2 else 87)))
     return row
 tab([cards_row(560,1830,"head"),cards_row(578,4320,"body"),cards_row(623,2190,"result")],520)
-add_text(only(50,60,647,650)+"  ▪ 지적사항 개선",1320,True,line=1680,after=240,ratio=85)
+heading=add_text(only(50,60,647,650),1320,True,line=1680,after=240,ratio=85)
+# The 지적사항 tag is a smaller run on the same line, as in the PDF.
+tag=layout.sub(heading,"hp:run",charPrIDRef=layout.char(1000,True,"#161616",85))
+layout.sub(tag,"hp:t").text="  ■ 지적사항 개선"
 tab([[label(0,3000,2150,"현황",gray2),c(1,19400,2150,only(90,95,671,674),white,ratio=87),
-      label(2,1450,2150,"➜","1",size=1200),label(3,3000,2150,"개선",dark,color="#FFFFFF"),
+      label(2,1450,2150,"▶","1",size=1100),label(3,3000,2150,"개선",dark,color="#FFFFFF"),
       c(4,23050,2150,"① "+only(340,350,671,674)+" ② "+only(460,470,671,674),white,ratio=82)]],380)
 left=reg(60,65,715,731)
 right_a=reg(310,320,715,731)
-tab([[label(0,24750,1800,"❶ "+only(150,155,696,699),gray2),c(1,400,1800,""),label(2,24750,1800,"❷ "+only(395,400,696,699),gray2)],
+tab([[label(0,24750,1800,"① "+only(150,155,696,699),gray2),c(1,400,1800,""),label(2,24750,1800,"② "+only(395,400,696,699),gray2)],
      [c(0,24750,3250,left,white,ratio=80),c(1,400,3250,""),c(2,24750,3250,
-       [right_a[0]+" ➜ "+only(475,480,715,718),right_a[1]+" ➜ "+only(430,435,728,730)],white,ratio=78)]],470)
+       [right_a[0]+" → "+only(475,480,715,718),right_a[1]+" → "+only(430,435,728,730)],white,ratio=78)]],470)
 tab([[label(0,5600,5150,"주요성과",dark,color="#FFFFFF",size=1160),
       c(1,44300,5150,reg(115,120,752,785),outline,bold=True,ratio=86,line=1390)]])
 add_text("30    한전KDN㈜",1090,True,line=1400,before=1250)

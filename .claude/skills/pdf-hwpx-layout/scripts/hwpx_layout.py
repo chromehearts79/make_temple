@@ -9,6 +9,27 @@ from lxml import etree as E
 
 SEED = Path(__file__).resolve().parents[1] / "assets" / "blank-layout-seed.zip"
 
+# A cell holding only one of these glyphs is a connector between boxes. Its left/right padding
+# is made equal so the glyph sits on the cell centre line (the default padding is 320/180).
+CONNECTORS = frozenset("+▶◀▲▼→←↑↓↔⇒")
+
+
+def unsafe_symbols(text):
+    """Non-ASCII, non-Hangul characters outside KS X 1001 (not encodable as EUC-KR).
+
+    KoPub돋움체 and similar Korean fonts cover KS X 1001. Hancom draws other symbols (➜ ❶ ✓ ▪ ☑ ▬)
+    from a fallback font, so their size and baseline drift and arrows look misaligned.
+    """
+    seen = []
+    for ch in text:
+        if ord(ch) < 0x80 or "\uac00" <= ch <= "\ud7a3" or ch in seen:
+            continue
+        try:
+            ch.encode("euc_kr")
+        except UnicodeEncodeError:
+            seen.append(ch)
+    return seen
+
 
 class Layout:
     """Build one HWPX section from editable paragraphs and tables."""
@@ -147,7 +168,7 @@ class Layout:
         self.get(table,"hp:outMargin").set("bottom",str(gap))
         for ri, cells in enumerate(rows):
             row = self.sub(table,"hp:tr")
-            for ci,width,height,contents,fill,span,colspan in cells:
+            for ci,width,height,contents,fill,span,colspan,*extra in cells:
                 cell = deepcopy(self.old_cell)
                 row.append(cell)
                 cell.set("header","0")
@@ -163,8 +184,15 @@ class Layout:
                 sz = self.get(cell,"hp:cellSz")
                 sz.set("width",str(width))
                 sz.set("height",str(height))
+                padding = dict(left=320,right=180,top=80,bottom=80)
+                text = "".join(t for para in contents
+                               for t in para.xpath(".//hp:t/text()", namespaces=self.ns)).strip()
+                if text in CONNECTORS:
+                    padding.update(left=0, right=0)
+                if extra and extra[0]:
+                    padding.update(extra[0])
                 m=self.get(cell,"hp:cellMargin")
-                for key,val in dict(left=320,right=180,top=80,bottom=80).items():
+                for key,val in padding.items():
                     m.set(key,str(val))
         if floating:
             table.set("textWrap","IN_FRONT_OF_TEXT")
@@ -203,6 +231,9 @@ class Layout:
         return output
 
 
-def cell(index, width, height, contents, fill="1", span=1, colspan=1):
-    """Declare one cell. A merged cell carries its full width and height."""
-    return (index, width, height, contents, fill, span, colspan)
+def cell(index, width, height, contents, fill="1", span=1, colspan=1, margin=None):
+    """Declare one cell. A merged cell carries its full width and height.
+
+    margin: optional dict with any of left/right/top/bottom padding in 1/100 pt.
+    """
+    return (index, width, height, contents, fill, span, colspan, margin)

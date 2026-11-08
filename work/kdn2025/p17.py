@@ -131,7 +131,7 @@ assert sum(W) == 49900
 def band(number, titles, gap):
     """평가내용 banner: dark chip at the top-left, hatched title area (as kdn_p49.py)."""
     ratio = fit([[(t, 1240)] for t in titles], 42950)
-    chip = [p(f"✓ 평가내용 {number:02}", 970, True, "#FFFFFF", align="CENTER", line=1150, ratio=74)]
+    chip = [p(f"평가내용 {number:02}", 970, True, "#FFFFFF", align="CENTER", line=1150, ratio=74)]
     hatch = border("#E9E9E9", top="strong", bottom="soft", pattern=True)
     title = [p(t, 1240, line=1500, ratio=ratio) for t in titles]
     if len(titles) == 1:

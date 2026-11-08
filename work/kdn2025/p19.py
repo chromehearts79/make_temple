@@ -327,20 +327,20 @@ segments = [(115.5, 148.2, 260.4), (260.4, 293.0, 410.0), (410.0, 442.2, X1)]
 visions = ["디지털 혁신", "에너지 대전환 선도", "글로벌 에너지ICT의 중심"]
 shifts = [("양적 성장 추구", "질적 미래 설계"), ("기술 운영 중심", "신기술 창출 성과"),
           ("안정 중심", "도전을 통한 혁신")]
-cores = [("주도가치", "Visionary", "미래주도", "❶"), ("선도가치", "Advance", "기술선도", "❷"),
-         ("도약가치", "Leap", "도전의식", "❸")]
+cores = [("주도가치", "Visionary", "미래주도", "①"), ("선도가치", "Advance", "기술선도", "②"),
+         ("도약가치", "Leap", "도전의식", "③")]
 for i, (a, b, e) in enumerate(segments):
     sep = "dot" if i < 2 else None
     g.put(a, a + 24.0, 2, 3, str(i + 1), dark, size=1300, bold=True, color=WHITE)
     g.put(a + 24.0, e, 2, 3, visions[i], frame(top="strong", right=sep), align="LEFT", size=1250, bold=True)
     pre, post = shifts[i]
-    g.put(a, e, 4, 5, [[(pre + " ➜ ", 1150, False, INK), (post, 1150, True, INK)]], frame("#E9E9E9", right=sep))
+    g.put(a, e, 4, 5, [[(pre + " → ", 1150, False, INK), (post, 1150, True, INK)]], frame("#E9E9E9", right=sep))
     tag, name, kor, num = cores[i]
     g.put(a, b, 6, 7, tag, dark, size=900, color=WHITE)
     g.put(b, e, 6, 7, [[(name, 1250, True, INK), (f" ({kor}) {num}", 1100, False, INK)]],
           frame(top="strong", bottom="strong", right="strong" if i == 2 else None))
 for (a, b, e), (name, kor, num) in zip([(115.5, 148.2, 335.1), (335.1, 368.0, X1)],
-                                       [("Unity", "소통협력", "❹"), ("Ethic", "청렴윤리", "❺")]):
+                                       [("Unity", "소통협력", "④"), ("Ethic", "청렴윤리", "⑤")]):
     g.put(a, b, 8, 9, "기저가치", frame("#D6D6D6"), size=900)
     g.put(b, e, 8, 9, [[(name, 1250, True, INK), (f" ({kor}) {num}", 1100, False, INK)]],
           frame(top="soft", bottom="soft", right="soft" if name == "Ethic" else None))
@@ -363,13 +363,13 @@ g.put(X0, 218.5, 2, 5, lines_in(60, 215, 315, 360), frame(**side, bottom="soft")
 g.put(X0, 218.5, 5, 6, "▼", frame(**side), size=900, color=ARROW, line=1000)
 g.put(X0, 218.5, 6, 7, [line1(95, 100, 376, 380)], gray)
 g.put(X0, 130.1, 7, 11, lines_in(60, 130, 394, 440), frame(left="soft", bottom="soft"))
-g.put(130.1, 144.6, 7, 11, "➜", frame(bottom="soft"), size=1000, color="#7A7A7A")
+g.put(130.1, 144.6, 7, 11, "▶", frame(bottom="soft"), size=1000, color="#7A7A7A")
 g.put(144.6, 218.5, 7, 11, lines_in(140, 215, 394, 440), frame(right="soft", bottom="soft"))
 for k, y in enumerate((299.7, 328.1, 356.4, 384.8, 413.1)):
     r = 1 + 2 * k
     g.put(232.4, 252.4, r, r + 2, lines_in(235, 250, y - 1, y + 26), gray)
     name, kor = lines_in(265, 275, y - 1, y + 26)
-    g.put(252.4, 317.5, r, r + 2, [[("❶❷❸❹❺"[k] + " ", 1090, True, INK)] + runs_of(name), kor],
+    g.put(252.4, 317.5, r, r + 2, [[("①②③④⑤"[k] + " ", 1090, True, INK)] + runs_of(name), kor],
           frame(bottom="soft"), align="LEFT")
     g.put(317.5, 436.7, r, r + 2, lines_in(320, 430, y - 1, y + 26), frame(bottom="soft", right="soft"))
 # 전직원 공유 pledge card: an image in the PDF (about 4-5 pt text), read from a 4x render.

@@ -154,7 +154,7 @@ strat_label = border("#3F3F3F", top="strong")
 strat_title = border("#D5D5D5", top="soft")
 strat_body = border("#EDEDED")
 strat_chip = border("#8C8C8C")
-BULLET = "✓ "
+BULLET = "◎ "
 
 
 def gap(i, h, grid_widths=G):

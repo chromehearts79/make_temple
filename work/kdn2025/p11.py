@@ -155,7 +155,7 @@ for k, (group, y0, y1) in enumerate(zip(items, starts, starts[1:] + [items_botto
     assert len(texts) == len(group), texts
     h, pad = hu(y1 - y0), hu(first - y0 - 1.5)
     fill, span = (top_line, 2) if k == 0 else ("1", 1)
-    num = c(2, NUM_W, h, "❶❷❸❹❺❻❼❽❾"[k], fill, bold=True, align="CENTER", size=1098, ratio=100,
+    num = c(2, NUM_W, h, "①②③④⑤⑥⑦⑧⑨"[k], fill, bold=True, align="CENTER", size=1098, ratio=100,
             line=1536, before=pad, span=span)
     text = c(3, ITEM_W, h, texts, fill, size=1098, ratio=90, line=1536, before=pad, span=span)
     if k == 0:

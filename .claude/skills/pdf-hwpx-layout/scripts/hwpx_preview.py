@@ -3,7 +3,9 @@
 This is NOT a Hancom renderer. Fonts and line breaking differ, so use it only to catch
 gross problems: wrong cell mapping, missing columns, broken merges and page overflow.
 
-usage: python3 tools/hwpx_preview.py draft.hwpx out.png [--pdf report.pdf --page 13]
+usage: python3 scripts/hwpx_preview.py draft.hwpx out.png [--pdf report.pdf --page 13]
+
+Needs Node with the playwright package and a Chromium build (preinstalled in Claude cloud sessions).
 """
 
 import argparse

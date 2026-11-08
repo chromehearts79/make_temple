@@ -45,7 +45,7 @@ for i,(lo,hi,h1,h2) in enumerate([(116,163,2590,2120),(163,226,2640,3600),(226,2
         cell(1,widths[1],h1,body(details[:2],size=1090,ratio=73),border("#EBEBEB",sides="soft")),
         cell(2,widths[2],h1+h2,center(reference[0],1090),end,2),
     ])
-    rows.append([cell(1,widths[1],h2,body(["☑ "+t for t in details[2:]],bold=True,size=1050,ratio=lambda t: 65 if t.startswith("☑ 지역전문사원") else 73,spacing=1340),
+    rows.append([cell(1,widths[1],h2,body(["▣ "+t for t in details[2:]],bold=True,size=1050,ratio=lambda t: 65 if t.startswith("▣ 지역전문사원") else 73,spacing=1340),
                       border("#D1D1D1",bottom="dot",sides="soft"))])
 # Rowspan cells store total height. The middle cells define the component row heights.
 add_table(rows)
@@ -54,7 +54,7 @@ add_text(reg(205,215,422,430)[0],1800,True,align="CENTER",line=2400,before=1200,
 for i,band in enumerate((453,543,633,723),1):
     title=reg(120,135,band,band+3)[0]
     add_table([[
-        cell(0,6950,2650,[p(f"✓ 평가내용 {i:02}",970,True,"#FFFFFF",align="CENTER",line=1150,ratio=74)],border("#565656",top="strong",bottom="soft")),
+        cell(0,6950,2650,[p(f"평가내용 {i:02}",970,True,"#FFFFFF",align="CENTER",line=1150,ratio=74)],border("#565656",top="strong",bottom="soft")),
         cell(1,42950,2650,[p(title,1120,align="LEFT",line=1400,ratio=70)],border("#E9E9E9",top="strong",bottom="soft",pattern=True))
     ]],gap=340)
     heads=reg(50,560,band+25,band+33)

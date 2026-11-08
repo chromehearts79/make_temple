@@ -63,10 +63,13 @@ def line1(*bounds):
     return hits[0]
 
 
-def runs_of(line, color=INK, scale=1.0, bold=None):
-    """PDF spans -> [(text, size, bold, color)] with leading/trailing blanks stripped."""
+def runs_of(line, color=INK, scale=1.0, bold=None, x0=-1e9, x1=1e9):
+    """PDF spans -> [(text, size, bold, color)] with leading/trailing blanks stripped.
+    x0/x1 keep only spans starting inside that x range (split one PDF line across cells)."""
     runs, prev = [], False
     for s in line["spans"]:
+        if not x0 <= s["bbox"][0] < x1:
+            continue
         b = any(f in s["font"] for f in BOLD_FONTS)
         if any(f in s["font"] for f in SYMBOL_FONTS):
             b = prev
@@ -137,14 +140,33 @@ def frame(fill=None, top=None, bottom=None, left=None, right=None, hatch=None):
     return L.append_style(L.borders, el)
 
 
+# Superscript counts (4회, 18개 ...) are 60 % of the line size in this PDF, i.e. Hancom 위 첨자.
+# False: small runs on the baseline (safe, previewable). True: emit Hancom's own <hh:supscript/>
+# on a full-size run (as python-hwpx and Hancom write it); not yet checked in the target editor
+# and invisible to tools/hwpx_preview.py.
+SUPERSCRIPT = False
+SUP_RATIO = 0.65
+
+
+@lru_cache(None)
+def sup_char(size, bold, color, ratio):
+    base = L.characters.find(f"hh:charPr[@id='{L.char(size, bold, color, ratio)}']", L.ns)
+    el = deepcopy(base)
+    L.sub(el, "hh:supscript")
+    return L.append_style(L.characters, el)
+
+
 def para(runs, align="LEFT", line=None, ratio=90, before=0, after=0):
-    first = runs[0]
-    line = line or max(1000, int(round(max(r[1] for r in runs) * 1.16 / 10)) * 10)
-    el = L.p(first[0], first[1], first[2], first[3], align=align, line=line,
-             before=before, after=after, ratio=ratio)
-    for text, size, bold, color in runs[1:]:
-        run = L.sub(el, "hp:run", charPrIDRef=L.char(size, bold, color, ratio))
-        L.sub(run, "hp:t").text = text
+    top = max(r[1] for r in runs)
+    line = line or max(1000, int(round(top * 1.16 / 10)) * 10)
+    el = L.p("", top, align=align, line=line, before=before, after=after, ratio=ratio)
+    el.remove(el[0])
+    for text, size, bold, color in runs:
+        if SUPERSCRIPT and size < top * SUP_RATIO:
+            ref = sup_char(top, bold, color, ratio)
+        else:
+            ref = L.char(size, bold, color, ratio)
+        L.sub(L.sub(el, "hp:run", charPrIDRef=ref), "hp:t").text = text
     return el, line
 
 
@@ -259,16 +281,16 @@ def title_band(name, line, edges, top):
     """'다. [badge] title' : number, light pill badge and 14pt title in three cells."""
     runs = runs_of(line)
     g = Grid(name, edges, [1650])
-    g.put(edges[0], edges[1], 0, 1, [strip_runs(runs[:1])], align="LEFT")
+    g.put(edges[0], edges[1], 0, 1, [strip_runs(runs[:1])], align="LEFT", line=1450)
     g.put(edges[1], edges[2], 0, 1, [runs[1]], pill)
-    g.put(edges[2], edges[3], 0, 1, [strip_runs(runs[2:])], align="LEFT")
+    g.put(edges[2], edges[3], 0, 1, [strip_runs(runs[2:])], align="LEFT", line=1450)
     block(g, top)
 
 
 def heading(name, line, top, badge=None, badge_x=503.0):
     """'□ heading' with an optional dark tag such as 지적사항 개선 (tag typed from its image)."""
     g = Grid(name, [X0, badge_x, X1] if badge else [X0, X1], [1600])
-    g.put(X0, badge_x if badge else X1, 0, 1, [[("□ ", 1350, True, INK)] + runs_of(line)], align="LEFT")
+    g.put(X0, badge_x if badge else X1, 0, 1, [[("□ ", 1350, True, INK)] + runs_of(line)], align="LEFT", line=1400)
     if badge:
         g.put(badge_x, X1, 0, 1, badge, dark, size=900, bold=True, color=WHITE)
     block(g, top)
@@ -294,8 +316,8 @@ block(g, 32.0)
 title_band("title-da", line1(55, 60, 70, 74), [X0, 76.5, 153.6, X1], 70.5)
 
 # 다. Mission / vision / core-value block: an image in the PDF, text read from a 4x render.
-xs = [X0, 110.0, 115.5, 148.2, 260.4, 293.0, 335.1, 368.0, 410.0, 442.2, X1]
-g = Grid("value-system", xs, [2500, 550, 2200, 550, 2150, 500, 1800, 380, 1800, 1000, 2100])
+xs = [X0, 110.0, 115.5, 139.5, 148.2, 260.4, 284.4, 293.0, 335.1, 368.0, 410.0, 434.0, 442.2, X1]
+g = Grid("value-system", xs, [2500, 550, 2200, 550, 2150, 500, 1800, 380, 1800, 1100, 2000])
 for r, text in ((0, "미 션"), (2, "비 전"), (4, "전환포인트")):
     g.put(X0, 110.0, r, r + 1, text, gray, size=1200, bold=True)
 g.put(X0, 110.0, 6, 9, [[("핵심가치", 1200, True)], [("(V.A.L.U.E)", 1000, False)]], gray)
@@ -309,17 +331,17 @@ cores = [("주도가치", "Visionary", "미래주도", "❶"), ("선도가치", 
          ("도약가치", "Leap", "도전의식", "❸")]
 for i, (a, b, e) in enumerate(segments):
     sep = "dot" if i < 2 else None
-    g.put(a, b, 2, 3, str(i + 1), dark, size=1300, bold=True, color=WHITE)
-    g.put(b, e, 2, 3, visions[i], frame(top="strong", right=sep), align="LEFT", size=1250, bold=True)
+    g.put(a, a + 24.0, 2, 3, str(i + 1), dark, size=1300, bold=True, color=WHITE)
+    g.put(a + 24.0, e, 2, 3, visions[i], frame(top="strong", right=sep), align="LEFT", size=1250, bold=True)
     pre, post = shifts[i]
     g.put(a, e, 4, 5, [[(pre + " ➜ ", 1150, False, INK), (post, 1150, True, INK)]], frame("#E9E9E9", right=sep))
     tag, name, kor, num = cores[i]
-    g.put(a, b, 6, 7, tag, dark, size=1000, color=WHITE)
+    g.put(a, b, 6, 7, tag, dark, size=900, color=WHITE)
     g.put(b, e, 6, 7, [[(name, 1250, True, INK), (f" ({kor}) {num}", 1100, False, INK)]],
           frame(top="strong", bottom="strong", right="strong" if i == 2 else None))
 for (a, b, e), (name, kor, num) in zip([(115.5, 148.2, 335.1), (335.1, 368.0, X1)],
                                        [("Unity", "소통협력", "❹"), ("Ethic", "청렴윤리", "❺")]):
-    g.put(a, b, 8, 9, "기저가치", frame("#D6D6D6"), size=1000)
+    g.put(a, b, 8, 9, "기저가치", frame("#D6D6D6"), size=900)
     g.put(b, e, 8, 9, [[(name, 1250, True, INK), (f" ({kor}) {num}", 1100, False, INK)]],
           frame(top="soft", bottom="soft", right="soft" if name == "Ethic" else None))
 g.put(X0, X1, 9, 10, "▼", size=800, color="#8C8C8C", line=820)
@@ -362,7 +384,7 @@ for i, (letter, text) in enumerate(zip("VALUE", pledges)):
     g.put(462.0, X1, 3 + i, 4 + i, text, frame(right="soft", bottom="soft"), align="LEFT", size=480, bold=True)
 g.put(450.7, X1, 8, 11, lines_in(455, 550, 398, 440), frame("#E6E6E6", **side, bottom="soft"))
 for a, e in ((218.5, 232.4), (436.7, 450.7)):
-    g.put(a, e, 4, 8, "▶", size=1300, color=ARROW)
+    g.put(a, e, 4, 8, "▶", size=1000, color=ARROW)
 block(g, 275.8)
 
 title_band("title-ra", line1(55, 60, 446, 450), [X0, 76.5, 140.6, X1], 446.5)
@@ -408,20 +430,20 @@ block(g, 533.9)
 heading("heading-external", line1(65, 75, 655, 660), 656.0)
 
 # Stakeholder table (one bullet per half row) and a photo + score chart column.
-xs = [X0, 84.8, 120.0, 274.0, 468.0, 470.6, 513.2, X1]
+xs = [X0, 80.0, 121.0, 274.0, 468.0, 470.6, 513.2, X1]
 g = Grid("stakeholder-table", xs, [1820] + [1350] * 8)
-g.put(X0, 120.0, 0, 1, [line1(75, 80, 678, 682)], gray2, bold=True)
-g.put(120.0, 274.0, 0, 1, [line1(165, 170, 678, 682)], gray2, bold=True)
+g.put(X0, 121.0, 0, 1, [line1(75, 80, 678, 682)], gray2, bold=True)
+g.put(121.0, 274.0, 0, 1, [line1(165, 170, 678, 682)], gray2, bold=True)
 g.put(274.0, 468.0, 0, 1, [line1(335, 340, 678, 682)], gray2, bold=True)
 cellf = frame(bottom="soft", left="soft", right="soft")
-g.put(X0, 84.8, 1, 7, lines_in(58, 62, 720, 750), cellf)
-g.put(X0, 84.8, 7, 9, lines_in(58, 62, 775, 802), cellf)
-customer = runs_of(line1(85, 90, 775, 779))
+g.put(X0, 80.0, 1, 7, lines_in(58, 62, 720, 750), cellf)
+g.put(X0, 80.0, 7, 9, lines_in(58, 62, 775, 802), cellf)
+customer = line1(85, 90, 775, 779)
 for r, (y0, y1) in zip((1, 3, 5), ((694, 722), (722, 748), (748, 775))):
-    g.put(84.8, 120.0, r, r + 2, lines_in(85, 120, y0, y1), cellf)
-    g.put(120.0, 274.0, r, r + 2, lines_in(122, 272, y0, y1), cellf)
-g.put(84.8, 120.0, 7, 9, [customer[:1]], cellf)
-g.put(120.0, 274.0, 7, 9, [strip_runs(customer[1:]), line1(130, 140, 788, 792)], cellf)
+    g.put(80.0, 121.0, r, r + 2, lines_in(85, 120, y0, y1), cellf)
+    g.put(121.0, 274.0, r, r + 2, lines_in(122, 272, y0, y1), cellf)
+g.put(80.0, 121.0, 7, 9, [runs_of(customer, x1=120.0)], cellf)
+g.put(121.0, 274.0, 7, 9, [runs_of(customer, x0=120.0), line1(130, 140, 788, 792)], cellf)
 for r, bullet in enumerate(lines_in(274, 280, 690, 802), 1):
     g.put(274.0, 468.0, r, r + 1, [bullet], frame(left="soft", right="soft", bottom="soft" if r % 2 == 0 else None),
           align="LEFT", line=1180)
@@ -435,6 +457,9 @@ g.put(470.6, X1, 8, 9, [line1(475, 480, 786, 790)], frame("#E9E9E9", left="mid",
 block(g, 675.9)
 
 flush(end=803.0)
+# Floating and flow tables otherwise share builder ids (5000 + paragraph count): make them unique.
+for number, table in enumerate(L.section.iter(L.q("hp:tbl")), 5001):
+    table.set("id", str(number))
 for message in WARN:
     print("WARN", message)
 print(L.write(target))

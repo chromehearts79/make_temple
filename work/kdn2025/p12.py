@@ -60,6 +60,13 @@ def tab(rows, gap=0):
     return add_table(rows, gap=hu(gap))
 
 
+def fit_ratio(texts, size, cell_w, base=93):
+    """Largest 장평 (<= base) that keeps every line on one line even if Hangul and CJK
+    punctuation render a full em wide (the preview's substitute font does; KoPub is narrower)."""
+    em = [sum(1.0 if ord(ch) >= 0x1100 else 0.33 if ch == " " else 0.6 for ch in t) for t in texts]
+    return max(70, min(base, int(100 * (cell_w - 500) / (size * max(em)))))
+
+
 def valign(table, value, cols=None):
     for tc in table.iter(layout.q("hp:tc")):
         if cols is None or int(tc.find("hp:cellAddr", NS).get("colAddr")) in cols:
@@ -147,7 +154,8 @@ for k, (kind, top, bottom, lines) in enumerate(elements):
                         color="#FFFFFF", line=1000),
                       c(1, NUM_W, height, str(box_number), hatch_bottom, bold=True, align="CENTER",
                         size=2200, ratio=80, line=2400, span=2),
-                      c(2, TITLE_W, height, texts, frame, bold=True, size=1050, ratio=93, line=1396, span=2)],
+                      c(2, TITLE_W, height, texts, frame, bold=True, size=1050, ratio=fit_ratio(texts, 1050, TITLE_W),
+                        line=1396, span=2)],
                      [blank(0, PILL_W, height - pill_h, hatch_bottom)]], gap)
         valign(table, "TOP", cols=(1,))
         continue
@@ -162,12 +170,11 @@ for k, (kind, top, bottom, lines) in enumerate(elements):
     # Title cell: PDF title width x 1.08 plus cell padding; the leader takes the rest.
     title_w = hu((leader_start(line["bbox"]) - x) * 1.08 + 5.0)
     leader_w = BODY_W - spacer - title_w - PAGE_W
-    ratio = 93
     if leader_w < 800:  # very long title: keep a short leader and condense the title instead
-        ratio = max(70, int(93 * (title_w - (800 - leader_w)) / title_w))
         title_w -= 800 - leader_w
         leader_w = 800
     size, line_h = (1187, 1400) if main else (939, 1150)
+    ratio = fit_ratio([title], size, title_w)
     table = tab([[blank(0, spacer, height),
                   c(1, title_w, height, title, bold=main, size=size, ratio=ratio, line=line_h),
                   blank(2, leader_w, height, leader),

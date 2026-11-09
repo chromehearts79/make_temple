@@ -111,7 +111,7 @@ def main():
         page.get_pixmap(matrix=pymupdf.Matrix(1.65, 1.65), alpha=False).save(args.out_dir / "page.png")
     print(f"Wrote {args.out_dir / 'page.json'} and {args.out_dir / 'page.png'}")
     if info["inline_tags"]:
-        print("Tag boxes inside text lines (box in a box; build with Layout.tagged):")
+        print("Tag boxes inside text lines (box in a box; build with Layout.boxed_line):")
         for tag in info["inline_tags"]:
             print(f"  [{tag['tag']}] in line {tag['line']!r}")
 

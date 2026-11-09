@@ -134,7 +134,8 @@ class Layout:
                 edge = self.get(el, "hh:"+direction+"Border")
                 typ, width, color = {"strong":("SOLID","0.3 mm","#555555"),
                                       "soft":("SOLID","0.1 mm","#ABABAB"),
-                                      "dot":("DOT","0.1 mm","#BCBCBC")}[kind]
+                                      "dot":("DOT","0.1 mm","#BCBCBC"),
+                                      "thin":("SOLID","0.12 mm","#444444")}[kind]
                 for key,val in zip(("type","width","color"),(typ,width,color)):
                     edge.set(key,val)
         if fill:
@@ -232,33 +233,56 @@ class Layout:
         return holder
 
 
-    def tagged(self, tag, text, width, height, tag_fill, *, lead="", tag_size=900,
-               tag_color="#FFFFFF", size=1080, color="#161616", ratio=80, space=200,
-               align="CENTER", bold=True, gap=0):
-        """Cell contents with a small filled tag box followed by text, both centred vertically.
+    def boxed_line(self, parts, width, height, *, size=1080, color="#161616", ratio=80,
+                   bold=False, align="LEFT", gap=0, space=150, min_ratio=72):
+        """One line of text with small boxes in it (a box inside a box), as cell contents.
 
-        A one-row nested table: the tag cell has the fill, the text cell has none. The pair is
-        sized from text_width() and placed by `align` in the outer cell, never wider than
-        `width`, the outer cell's inner width (cell width minus its left and right padding).
-        lead is source text before the tag, such as a "∙" bullet, kept in its own cell so the
-        document text still reads in PDF order. Returns a list of paragraphs for one cell.
+        parts: plain strings and tag() boxes in reading order, e.g.
+        ["∙", tag("환경분석", light), "육아휴직 등 …"] or ["지역 전문사원", tag("개선", gray)].
+        The line becomes a one-row table placed like a character: boxes are filled cells, text
+        cells have no border, and all are centred vertically. Widths come from text_width(). If
+        they add up to more than `width` (the outer cell's inner width, i.e. cell width minus its
+        left and right padding), the line's width ratio drops toward min_ratio, then the widest
+        text cell gives way. `space` separates text from a neighbouring box and `gap` is the
+        space below the line. Returns [paragraph].
         """
-        pad = dict(left=150, right=150, top=0, bottom=0)
-        cells = []
-        if lead:
-            lead_w = text_width(lead, size, ratio) + 100
-            cells.append(cell(0, lead_w, height, [self.p(lead, size, bold, color, line=size + 170,
-                                                         ratio=ratio)], margin=dict(pad, left=0, right=100)))
-        tag_w = text_width(tag, tag_size, ratio) + 300 + 200
-        used = sum(c[1] for c in cells) + tag_w
-        text_w = min(text_width(text, size, ratio) + space + 300, width - used)
-        cells.append(cell(len(cells), tag_w, height, [self.p(tag, tag_size, True, tag_color, align="CENTER",
-                                                             line=tag_size + 200, ratio=ratio)],
-                          tag_fill, margin=pad))
-        cells.append(cell(len(cells), text_w, height, [self.p(text, size, bold, color, line=size + 170,
-                                                              ratio=ratio)],
-                          margin=dict(pad, left=space, right=0)))
-        return [self.nest([cells], align=align, gap=gap)]
+        def widths(r):
+            out = []
+            for i, part in enumerate(parts):
+                if isinstance(part, dict):
+                    out.append(part["width"] or text_width(part["text"], part["size"] or size - 100, r) + 400)
+                else:
+                    left = space if i and isinstance(parts[i - 1], dict) else 0
+                    right = space if i + 1 < len(parts) and isinstance(parts[i + 1], dict) else 0
+                    out.append(text_width(part.strip(), size, r) + left + right + 100)
+            return out
+        sizes = widths(ratio)
+        while sum(sizes) > width and ratio > min_ratio:
+            ratio = max(min_ratio, min(ratio - 1, ratio * width // sum(sizes)))
+            sizes = widths(ratio)
+        excess = sum(sizes) - width
+        if excess > 0:
+            texts = [i for i, part in enumerate(parts) if not isinstance(part, dict)]
+            sizes[max(texts, key=lambda i: sizes[i])] -= excess
+        row = []
+        for i, (part, w) in enumerate(zip(parts, sizes)):
+            if isinstance(part, dict):
+                tag_size = part["size"] or size - 100
+                body = [self.p(part["text"], tag_size, part["bold"], part["color"], align="CENTER",
+                               line=tag_size + 200, ratio=ratio)]
+                pad = dict(left=150, right=150, top=0, bottom=0)
+                fill = part["fill"]
+                if part["height"] and part["height"] < height:
+                    # A box shorter than the line sits centred in a borderless cell.
+                    body = [self.nest([[cell(0, w, part["height"], body, fill, margin=pad)]])]
+                    pad, fill = dict(left=0, right=0, top=0, bottom=0), "1"
+            else:
+                left = space if i and isinstance(parts[i - 1], dict) else 0
+                right = space if i + 1 < len(parts) and isinstance(parts[i + 1], dict) else 0
+                body = [self.p(part.strip(), size, bold, color, line=size + 170, ratio=ratio)]
+                pad, fill = dict(left=left, right=right, top=0, bottom=0), "1"
+            row.append(cell(i, w, height, body, fill, margin=pad))
+        return [self.nest([row], align=align, gap=gap)]
 
 
     def center(self, text,size=1090,bold=False,color="#161616"):
@@ -295,6 +319,16 @@ def text_width(text, size, ratio=100):
     """
     ems = sum(0.35 if ch == " " else 0.6 if ord(ch) < 0x80 else 1.0 for ch in text)
     return round(ems * size * ratio / 100)
+
+
+def tag(text, fill, color="#FFFFFF", *, size=None, bold=True, width=None, height=None):
+    """A small box inside a line, for Layout.boxed_line.
+
+    fill is a border() id, e.g. a dark fill for white text or a thin outline for dark text.
+    size defaults to the line size minus 1pt; height, when smaller than the line, makes a
+    shorter box centred on the line (e.g. a number square).
+    """
+    return dict(text=text, fill=fill, color=color, size=size, bold=bold, width=width, height=height)
 
 
 def cell(index, width, height, contents, fill="1", span=1, colspan=1, margin=None):

@@ -33,7 +33,8 @@ foot = [(line1(55, 60, 816, 820)["text"], 1090, False, INK), ("   ", 1090, False
 L.add_table([[cell(0, W, 1500, [para(foot, "LEFT", 1300)[0]])]], floating=(5660, 81550))
 
 g = Grid("head", [X0, 102.6, 158.6, X1], [1600])
-g.put(X0, 102.6, 0, 1, [[("PART ", 820, False, INK), ("01", 1450, True, "#505050")]], align="LEFT", fit=False)
+g.put(X0, 102.6, 0, 1, [[("PART ", 820, False, INK), ("01", 1450, True, "#505050")]], align="LEFT", line=1400,
+      fit=False)
 g.put(102.6, 158.6, 0, 1, "경영관리", frame("#333333"), size=1080, bold=True, color=WHITE)
 g.put(158.6, X1, 0, 1, [], frame(bottom="soft"))
 block(g, 31.8)
@@ -56,7 +57,8 @@ block(g, 101.5)
 xs = [X0, 113.4, 116.2, 255.5, 265.0, 404.3, 413.8, 553.1, X1]
 g = Grid("portfolio-tabs", xs, [1310, 390])
 for a, e, x in ((116.2, 255.5, 158), (265.0, 404.3, 308), (413.8, 553.1, 455)):
-    g.put(a, e, 0, 1, [line1(x - 1, x + 1, 127, 131)], frame("#D9D9D9", top="mid", left="mid", right="mid"))
+    g.put(a, e, 0, 1, [line1(x - 1, x + 1, 127, 131)], frame("#D9D9D9", top="mid", left="mid", right="mid"),
+          line=1150)
 g.put(113.4, X1, 1, 2, [], frame(top="mid"))
 block(g, 127.6)
 
@@ -104,8 +106,8 @@ g.put(281.0, X1, 0, 1, [line1(281, 282, 243, 246)], frame("#E2E2E2", **bar), ali
 block(g, 242.8)
 
 # 3C panel and GE-matrix panel: an image in the PDF; text read from a 4x render.
-xs = [X0, 170.5, 284.2, 399.5, 402.5, 444.0, 448.0, 483.5, 519.0, X1]
-hs = [1450, 1500, 1000, 2500, 1200, 1600, 2000]   # edges 266.5 281 296 306 331 343 359 379
+xs = [X0, 170.5, 284.2, 399.5, 402.5, 444.0, 448.0, 478.0, 511.0, X1]
+hs = [1450, 600, 900, 1700, 1900, 1100, 1600, 2000]   # edges 266.5 281 287 296 313 332 343 359 379
 g = Grid("panel-3c", xs, hs)
 cols = [(X0, 170.5, "전력계통사업",
          ["지구 14바퀴(약 58만km)의", "거대한 전력망을 끊김 없이", "감시하고 관리"],
@@ -118,52 +120,45 @@ cols = [(X0, 170.5, "전력계통사업",
          "→ 탄소중립 사업", "친환경·저탄소·분산화")]
 for k, (a, e, head, body, note, band) in enumerate(cols):
     sep = "dot" if k < 2 else None
-    g.put(a, e, 0, 2, head, frame(bottom="soft", right=sep), size=1100, bold=True)
-    g.put(a, e, 2, 5, [[(t, 1050, False, INK)] for t in body], frame("#F4F4F4", right=sep), line=1420)
-    g.put(a, e, 5, 6, note, frame("#F4F4F4", right=sep), size=820, color="#3A3A3A", line=1000)
-    g.put(a, e, 6, 7, band, frame("#555555", right="soft" if k < 2 else None), size=1220, bold=True, color=WHITE)
+    g.put(a, e, 0, 3, head, frame(bottom="soft", right=sep), size=1100, bold=True)
+    g.put(a, e, 3, 6, [[(t, 1050, False, INK)] for t in body], frame("#F4F4F4", right=sep), line=1420)
+    g.put(a, e, 6, 7, note, frame("#F4F4F4", right=sep), size=820, color="#3A3A3A", line=1000)
+    g.put(a, e, 7, 8, band, frame("#555555", right="soft" if k < 2 else None), size=1220, bold=True, color=WHITE)
 # GE matrix: title bar, y-axis label, 3x3 grid with the business bubbles, x-axis label, result pill.
 g.put(402.5, X1, 0, 1, [[("포트폴리오별 포지셔닝 재정렬 ", 1000, True, WHITE), ("지적사항 개선", 700, True, WHITE)]],
       frame("#6A6A6A"), line=1150)
-g.put(402.5, 444.0, 1, 5, [[("시장", 950, False, INK)], [("매력도", 950, False, INK)], [("+", 800, True, INK)],
+g.put(402.5, 444.0, 1, 6, [[("시장", 950, False, INK)], [("매력도", 950, False, INK)], [("+", 800, True, INK)],
                            [("전략·정책", 950, False, INK)], [("부합도", 950, False, INK)]],
       frame(top="soft", bottom="soft", **side), line=1050)
-g.put(444.0, 448.0, 1, 5, [], frame(right="mid"))
-cellf = frame("#ECECEC", bottom="soft", right="soft")
-g.put(448.0, 483.5, 1, 2, "High", frame(), size=650, align="LEFT", color="#3A3A3A", line=750)
-g.put(483.5, 519.0, 1, 2, [], frame())
-g.put(519.0, X1, 1, 2, [], frame())
-g.put(448.0, 519.0, 2, 3, [[("미래성장사업", 850, True, WHITE)], [("↑ 기존", 750, False, WHITE)]],
+for r in range(1, 6):
+    g.put(444.0, 448.0, r, r + 1, [], frame(right="mid"))
+g.put(448.0, 478.0, 1, 2, "High", size=550, align="LEFT", color="#3A3A3A", line=440, fit=False)
+g.put(448.0, 511.0, 2, 4, [[("미래성장사업", 850, True, WHITE)], [("↑ 기존", 750, False, WHITE)]],
       frame("#7C7C7C", bottom="soft", right="soft", hatch="#9A9A9A"), line=950)
-g.put(519.0, X1, 2, 3, [[("전력계통사업", 850, True, WHITE)], [("↗ 기존", 750, False, WHITE)]],
-      frame("#7C7C7C", bottom="soft"), line=950)
-g.put(448.0, 483.5, 3, 4, [], cellf)
-g.put(483.5, 519.0, 3, 4, [[("ICT운영사업", 850, True, INK)], [("↗ 기존", 750, False, INK)]],
-      frame("#C8C8C8", bottom="soft", right="soft"), line=950)
-g.put(519.0, X1, 3, 4, [], frame("#ECECEC", bottom="soft"))
-g.put(448.0, 483.5, 4, 5, "Low", frame(bottom="mid"), size=650, align="LEFT", color="#3A3A3A", line=750)
-g.put(483.5, X1, 4, 5, [], frame(bottom="mid"))
-g.put(402.5, X1, 5, 6, [[("기술경쟁력", 900, False, INK), (" + ", 800, True, INK), ("시장진입장벽", 900, False, INK),
+g.put(511.0, X1, 2, 4, [[("전력계통", 800, True, WHITE)], [("사업", 800, True, WHITE)], [("↗ 기존", 700, False, WHITE)]],
+      frame("#7C7C7C", bottom="soft"), line=800)
+g.put(448.0, 478.0, 4, 5, [], frame("#ECECEC", bottom="soft", right="soft"))
+g.put(478.0, X1, 4, 5, [[("ICT운영사업", 850, True, INK)], [("↗ 기존", 750, False, INK)]],
+      frame("#C8C8C8", bottom="soft"), line=860)
+g.put(448.0, 478.0, 5, 6, "Low", frame(bottom="mid"), size=600, align="LEFT", color="#3A3A3A", line=600)
+g.put(478.0, X1, 5, 6, [], frame("#ECECEC", bottom="mid"))
+g.put(402.5, X1, 6, 7, [[("기술경쟁력", 900, False, INK), (" + ", 800, True, INK), ("시장진입장벽", 900, False, INK),
                          ("  High", 650, False, "#3A3A3A")]], line=1050)
-g.put(402.5, X1, 6, 7, "高성장·高부가영역 중심으로 전환", frame("#5E5E5E"), size=1000, color=WHITE)
+g.put(402.5, X1, 7, 8, "高성장·高부가영역 중심으로 전환", frame("#5E5E5E"), size=1000, color=WHITE)
 block(g, 266.5)
 
 # 추진방향 / 전략과제 / 핵심사업 block.
-xs = [X0, 88.2, 92.0, 95.5, 115.0, 126.0, 138.0, 156.5, 168.5, 245.5, 250.0, 259.3, 263.0, 269.4,
-      275.0, 315.5, 327.5, 401.5, 404.5, 416.0, 424.0, X1]
+xs = [X0, 88.2, 92.0, 95.5, 115.0, 125.0, 126.0, 138.0, 150.5, 156.5, 168.5, 245.5, 250.0, 259.3, 263.0,
+      269.4, 275.0, 289.0, 313.0, 315.5, 327.5, 401.5, 404.5, 416.0, 424.0, 442.5, 467.0, X1]
 hs = [1870, 1870, 3670, 640, 1570, 1560, 820, 1910, 1980]
 g = Grid("direction", xs, hs)
 for (r0, r1), y in (((0, 3), 421), ((4, 6), 484.5), ((7, 9), 527)):
     g.put(X0, 88.2, r0, r1, lines_in(60, 85, y - 1, y + 16), frame("#D4D4D4"), bold=True, line=1320)
-heads = [(92.0, 245.5, 131), (259.3, 401.5, 293), (416.0, X1, 447)]
+heads = [(92.0, 125.0, 150.5, 245.5, 131), (259.3, 289.0, 313.0, 401.5, 293), (416.0, 442.5, 467.0, X1, 447)]
 hdr = "#DCDCDC"
-for k, (a, e, x) in enumerate(heads):
-    ln = line1(x, x + 1, 399, 401)
+for a, b0, b1, e, x in heads:
+    ln = line1(x - 1, x + 1, 399, 401)
     split = ln["spans"][0]["bbox"][2] + 1
-    bx0 = ln["spans"][0]["bbox"][0] - 2.5
-    edges = [x_ for x_ in xs if a <= x_ <= e]
-    b0 = max(x_ for x_ in edges if x_ <= bx0)
-    b1 = min(x_ for x_ in edges if x_ >= split + 1)
     g.put(a, b0, 0, 1, [], frame(hdr, top="mid"))
     g.put(b0, b1, 0, 1, [runs_of(ln, x1=split)], frame(WHITE, top="soft", bottom="soft", left="soft", right="soft"))
     g.put(b1, e, 0, 1, [runs_of(ln, x0=split)], frame(hdr, top="mid"), align="LEFT")
@@ -183,7 +178,7 @@ for (a, b, c, e), x in (((92.0, 95.5, 115.0, 245.5), 98.4), ((245.5, 250.0, 269.
         top, bot = ("soft", None) if r == 4 else (None, "soft")
         split = ln["spans"][0]["bbox"][2] + 1
         g.put(a, b, r, r + 1, [], frame(top=top, bottom=bot, left="soft"))
-        g.put(b, c, r, r + 1, [runs_of(ln, x1=split)], frame("#F0F0F0", top=top, bottom=bot))
+        g.put(b, c, r, r + 1, [runs_of(ln, x1=split)], frame("#F0F0F0", top=top, bottom=bot), fit=False)
         g.put(c, e, r, r + 1, [runs_of(ln, x0=split)], frame(top=top, bottom=bot, right="soft"), align="LEFT")
 # 핵심사업: G / E / R on the first line, A / T on the second; letters in dark tags.
 tag = frame("#5A5A5A")
@@ -254,9 +249,21 @@ items = [("G", "AI 기반 전력망통합 운영 플랫폼 등 ", "2개"), ("R",
          ("T", "분산형 토탈 에너지 패키지 사업 등 ", "3개")]
 for (r0, r1), (letter, text, count) in zip(((7, 8), (8, 10), (10, 11), (11, 13), (13, 14)), items):
     edge = dict(bottom="mid") if r1 == 14 else {}
-    g.put(400.0, 404.0, r0, r1, [], frame(**edge))
     g.put(404.0, 416.0, r0, r1, letter, frame("#4A4A4A", **edge), size=950, bold=True, color=WHITE, line=1050)
-    g.put(416.0, X1, r0, r1, [[(text, 1050, False, INK), (count, 1100, True, INK)]], frame(**edge), align="LEFT")
+    g.put(416.0, X1, r0, r1, [[(text, 1000, False, INK), (count, 1050, True, INK)]], frame(**edge), align="LEFT")
 block(g, 590.0)
 
+
+def check_edges():
+    """Every inner column edge of a band must be a cell boundary, or its width is undefined."""
+    for grid, _ in kit.BLOCKS:
+        used = {0, len(grid.xs) - 1}
+        for (r, c0), item in grid.items.items():
+            used.update((c0, c0 + item[6]))
+        for c in range(len(grid.xs)):
+            if c not in used:
+                print(f"WARN {grid.name}: unused edge x={X0 + grid.xs[c] / 100:.1f}")
+
+
+check_edges()
 kit.finish(target, end=803.0)

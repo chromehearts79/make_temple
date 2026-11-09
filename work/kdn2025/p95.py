@@ -9,12 +9,11 @@ the ①-④ number boxes of 실행과제, the '지적사항 개선' sticker, and
 현황 map ('24년 1개소, '25년 3개소, 서 울, 충북, 전북, 나주; the map outline and pins are left
 out). The 개방 공간 현황 photo is an empty photo cell; the circled arrows become ▶, the down
 pointers ▼, the (+) joint "+", the hexagon badges dark cells. The source draws two middle dots
-with Wingdings U+F09E (산업단지·타기관, 창업·벤처); they are kept as that character in a Wingdings
-run so they print as in the PDF.
+with Wingdings U+F09E (산업단지·타기관, 창업·벤처); the text is kept as extracted and the builder
+writes them as the KS X 1001 middle dot "·".
 """
 
 import sys
-from copy import deepcopy
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -30,22 +29,8 @@ from kit import *  # noqa: E402,F401,F403  helpers and presets bound to this pag
 DARK, BAND = "#6A6A6A", "#E5E5E5"
 SIDE = "#EDEDED"
 HEADC = "#D9D9D9"
-WING = "#16161A"       # run colour marking the Wingdings U+F09E dot; re-mapped in finish
 BOX = frame(WHITE, top="soft", bottom="soft", left="soft", right="soft")
 HATCH = frame("#E9E9E9", hatch="#D9D9D9")
-
-
-def wing(runs):
-    """Split the Wingdings middle dot (U+F09E) into its own marked run."""
-    out = []
-    for text, size, bold, color in runs:
-        parts = text.split("")
-        for k, part in enumerate(parts):
-            if k:
-                out.append(("", size, bold, WING))
-            if part:
-                out.append((part, size, bold, color))
-    return out
 
 
 def hang(lines, base):
@@ -59,7 +44,7 @@ def hang(lines, base):
         n = max(0, round(offset / (0.29 * size)))
         if n:
             runs = [(" " * n, runs[0][1], False, INK)] + runs
-        out.append(wing(runs))
+        out.append(runs)
     return out
 
 
@@ -194,7 +179,7 @@ chip(g, 60.0, 105.5, 4, 5, [runs_of(tab_l)], frame("#F2F2F2", top="soft", bottom
 g.put(105.5, 245.0, 4, 5, [strip_runs(runs_of(text_l))], frame(bottom="soft"), align="LEFT")
 g.put(245.0, 250.0, 4, 5, [], frame(right="dot"))
 chip(g, 250.0, 294.5, 4, 5, [runs_of(tab_r)], frame("#F2F2F2", top="soft", bottom="soft", left="soft", right="soft"))
-g.put(294.5, 433.5, 4, 5, [wing(strip_runs(runs_of(text_r)))], frame(bottom="soft"), align="LEFT")
+g.put(294.5, 433.5, 4, 5, [strip_runs(runs_of(text_r))], frame(bottom="soft"), align="LEFT")
 g.put(433.5, 436.9, 4, 5, [], frame(right="mid"))
 # bullets: tagged lines split into bullet | boxed tag | text; continuation lines whole
 for half, (a, b, c, e, base) in enumerate(((X0, 73.0, 92.0, 247.5, 65.3), (247.5, 261.0, 280.5, 436.9, 253.4))):
@@ -296,22 +281,4 @@ g.put(111.7, X1, 0, 1, lines_in(115, 120, 767, 790), frame(top="mid", bottom="mi
       line=1600)
 block(g, 764.7)
 
-# ---------------------------------------------------------------------------
-# finish: Wingdings face for the U+F09E dots, then the kit's own finish
-# ---------------------------------------------------------------------------
-wing_ids = {}
-for family in L.header.iter(L.q("hh:fontface")):
-    font = deepcopy(family[0])
-    ident = str(max(int(f.get("id")) for f in family) + 1)
-    font.set("id", ident)
-    font.set("face", "Wingdings")
-    family.append(font)
-    family.set("fontCnt", str(len(family)))
-    wing_ids[family.get("lang").lower()] = ident
-for char in L.characters:
-    if char.get("textColor") == WING:
-        char.set("textColor", INK)
-        ref = L.get(char, "hh:fontRef")
-        for lang in ref.attrib:
-            ref.set(lang, wing_ids[lang])
 kit.finish(target, end=803.0)

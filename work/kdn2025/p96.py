@@ -10,12 +10,11 @@ and the small bar chart's labels (539건 '24년, 3,441건 '25년; bars and curve
 KDN 에코로드 illustration is an empty photo cell; circled arrows and chevrons become ▶, pointers ▼,
 the (+) joint "+". 신규 / 개선 / 기관業 / 문화 / 시설개방 / 비용절감 / MOU체결 / 시설 제공 / 기술 지원
 tags are separate boxed or dark cells. The source draws two middle dots with Wingdings U+F09E
-(‘시설·장비’ in the section title, 시민 참여형·지역 연계형); they stay that character in a
-Wingdings run so they print as in the PDF.
+(‘시설·장비’ in the section title, 시민 참여형·지역 연계형); the text is kept as extracted and the
+builder writes them as the KS X 1001 middle dot "·".
 """
 
 import sys
-from copy import deepcopy
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -30,21 +29,8 @@ from kit import *  # noqa: E402,F401,F403  helpers and presets bound to this pag
 
 DARK, BAND = "#707070", "#E5E5E5"
 HEADC = "#D9D9D9"
-WING = "#16161A"       # run colour marking the Wingdings U+F09E dot; re-mapped at the end
 BOX = frame(WHITE, top="soft", bottom="soft", left="soft", right="soft")
 HATCH = frame("#E6E6E6", hatch="#D6D6D6")
-
-
-def wing(runs):
-    """Split the Wingdings middle dot (U+F09E) into its own marked run."""
-    out = []
-    for text, size, bold, color in runs:
-        for k, part in enumerate(text.split("")):
-            if k:
-                out.append(("", size, bold, WING))
-            if part:
-                out.append((part, size, bold, color))
-    return out
 
 
 def hang(lines, base):
@@ -58,7 +44,7 @@ def hang(lines, base):
         n = max(0, round(offset / (0.29 * size)))
         if n:
             runs = [(" " * n, runs[0][1], False, INK)] + runs
-        out.append(wing(runs))
+        out.append(runs)
     return out
 
 
@@ -103,7 +89,7 @@ block(g, 32.0)
 # ---------------------------------------------------------------------------
 g = Grid("sec2", [X0, 84.5, X1], [2300])
 g.put(X0, 84.5, 0, 1, [runs_of(line1(60, 70, 73, 76), WHITE)], frame(DARK), line=1700)
-g.put(84.5, X1, 0, 1, [wing(runs_of(line1(90, 95, 73, 76)))], frame(BAND), align="LEFT", line=1700)
+g.put(84.5, X1, 0, 1, [runs_of(line1(90, 95, 73, 76))], frame(BAND), align="LEFT", line=1700)
 block(g, 70.9)
 
 g = Grid("title-ga", [X0, 430.8, 501.4, X1], [1650])
@@ -257,22 +243,4 @@ block(g, 633.1)
 boxed("result", line1(65, 70, 777, 781), lines_in(115, 120, 768, 790), 765.2, 3710, label_fill="#7F7F7F",
       label_color=WHITE)
 
-# ---------------------------------------------------------------------------
-# finish: Wingdings face for the U+F09E dots, then the kit's own finish
-# ---------------------------------------------------------------------------
-wing_ids = {}
-for family in L.header.iter(L.q("hh:fontface")):
-    font = deepcopy(family[0])
-    ident = str(max(int(f.get("id")) for f in family) + 1)
-    font.set("id", ident)
-    font.set("face", "Wingdings")
-    family.append(font)
-    family.set("fontCnt", str(len(family)))
-    wing_ids[family.get("lang").lower()] = ident
-for char in L.characters:
-    if char.get("textColor") == WING:
-        char.set("textColor", INK)
-        ref = L.get(char, "hh:fontRef")
-        for lang in ref.attrib:
-            ref.set(lang, wing_ids[lang])
 kit.finish(target, end=803.0)

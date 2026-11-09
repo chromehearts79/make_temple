@@ -10,6 +10,7 @@ python3 scripts/pdf_coords.py "/path/report.pdf" 51 "/path/analysis"
 python3 scripts/kdn_p51.py "/path/report.pdf" "/path/draft.hwpx"
 python3 scripts/check_hwpx.py "/path/draft.hwpx" --pdf "/path/report.pdf" --page 51
 python3 scripts/hwpx_preview.py "/path/draft.hwpx" "/path/preview.png" --pdf "/path/report.pdf" --page 51
+python3 scripts/merge_hwpx.py "/path/merged.hwpx" "/path/p01.hwpx" "/path/p02.hwpx"
 ```
 
 `hwpx_preview.py`는 Node의 playwright와 Chromium이 있어야 한다. Claude 클라우드 세션에는 미리 설치되어 있다.

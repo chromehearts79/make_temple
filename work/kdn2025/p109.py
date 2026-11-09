@@ -172,20 +172,20 @@ arrows = ((219.6, 238.9), (331.6, 348.6), (443.5, 461.1))
 subtags = ((224.2, 295.3, 321.2, 331.6), (336.1, 416.9, 443.5, 443.5), (448.1, 523.8, 549.7, X1))
 xs = sorted({X0, 109.6} | {x for c in cols for x in c[:2]} | {x for s in strip for x in s}
             | {x for t in subtags for x in t})
-g = Grid("risk", xs, [280, 1170, 280, 2300, 780, 350, 1200, 350, 3670])
+g = Grid("risk", xs, [150, 1430, 150, 2300, 780, 250, 1400, 250, 3670])
 g.put(X0, 109.6, 0, 4, lines_in(60, 65, 409, 425), frame("#CCCCCC"), line=1330)
 g.put(X0, 109.6, 5, 9, lines_in(60, 75, 465, 480), frame("#CCCCCC"), line=1330)
 shades = ("#EDEDED", "#E4E4E4", "#DBDBDB", "#D2D2D2")
 for k, ((a, n0, n1, e), shade) in enumerate(zip(strip, shades)):
     head = lines_in(n0 - 4, n1, 404, 408)[0]
     split = head["spans"][1]["bbox"][0]
+    g.put(a, e, 0, 1, [], frame(shade, top="soft"))
     if n0 > a:
-        g.put(a, n0, 0, 3, [], frame(shade, top="soft"))
-    g.put(n0, n1, 0, 1, [], frame(shade, top="soft"))
+        g.put(a, n0, 1, 2, [], frame(shade))
     g.put(n0, n1, 1, 2, [runs_of(head, x1=split)], OUTLINED, line=1000, fit=False)
     tight(g, n0, 1)
-    g.put(n0, n1, 2, 3, [], frame(shade))
-    g.put(n1, e, 0, 3, [strip_runs(runs_of(head, x0=split))], frame(shade, top="soft"), align="LEFT")
+    g.put(n1, e, 1, 2, [strip_runs(runs_of(head, x0=split))], frame(shade), align="LEFT")
+    g.put(a, e, 2, 3, [], frame(shade))
 for k, (a, e) in enumerate(arrows):
     g.put(a, e, 0, 3, "▶", frame(shades[k], top="soft"), size=800, color="#7F7F7F", fit=False)
 for k, (a, e, base) in enumerate(cols):
@@ -198,12 +198,12 @@ g.put(111.9, 219.6, 5, 8, [line1(111.9, 219.6, 453, 457)], frame("#EEEEEE", **ha
 for a, t0, t1, e in subtags:
     head = line1(a, t0, 453, 457)
     split = [s for s in head["spans"] if "단계" in s["text"]][0]["bbox"][0] - 0.5
-    g.put(a, t0, 5, 8, [strip_runs(runs_of(head, x1=split))], frame("#EEEEEE", **hatch), align="RIGHT")
-    g.put(t0, t1, 5, 6, [], frame("#EEEEEE", **hatch))
+    g.put(a, e, 5, 6, [], frame("#EEEEEE", **hatch))
+    g.put(a, t0, 6, 7, [strip_runs(runs_of(head, x1=split))], frame("#EEEEEE", **hatch), align="RIGHT")
     g.put(t0, t1, 6, 7, [runs_of(head, WHITE, x0=split)], NEW, line=1000)
-    g.put(t0, t1, 7, 8, [], frame("#EEEEEE", **hatch))
     if e > t1:
-        g.put(t1, e, 5, 8, [], frame("#EEEEEE", **hatch))
+        g.put(t1, e, 6, 7, [], frame("#EEEEEE", **hatch))
+    g.put(a, e, 7, 8, [], frame("#EEEEEE", **hatch))
 block(g, 402.4)
 
 g = Grid("result-na", [X0, 109.6, X1], [4000])
@@ -244,30 +244,26 @@ steps = ((X0, 63.5, 95.2, 167.1), (203.0, 203.0, 235.6, 305.0), (321.0, 321.0, 3
 step_arrows = ((188.0, 203.0), (305.0, 321.0), (441.0, 455.5))
 shades = ("#F3F3F3", "#E6E6E6", "#D9D9D9", "#C9C9C9")
 xs = sorted({x for s in steps for x in s} | {x for a in step_arrows for x in a} | {185.9})
-g = Grid("steps", xs, [700, 1170, 710])
+g = Grid("steps", xs, [560, 1460, 560])
 for k, ((a, p0, p1, e), shade) in enumerate(zip(steps, shades)):
     line = line1(p0, p1, 655, 659)
     split = p1 - 2.0
-    edge = dict(left="soft") if k == 0 else {}
+    side = dict(left="soft") if k == 0 else dict(right="soft") if k == 3 else {}
+    end = 188.0 if k == 0 else e
+    g.put(a, end, 0, 1, [], frame(shade, top="soft", **side))
+    g.put(a, end, 2, 3, [], frame(shade, bottom="soft", **side))
     if p0 > a:
-        g.put(a, p0, 0, 3, [], frame(shade, top="soft", bottom="soft", **edge))
-    g.put(p0, p1, 0, 1, [], frame(shade, top="soft"))
+        g.put(a, p0, 1, 2, [], frame(shade, **side))
     g.put(p0, p1, 1, 2, [runs_of(line, x1=split)], OUTLINED, line=1000, fit=False)
     tight(g, p0, 1, 40, 40)
-    g.put(p0, p1, 2, 3, [], frame(shade, bottom="soft"))
-    edge = dict(right="soft") if k == 3 else {}
     if k == 0:
         new = [s for s in line["spans"] if s["text"] == "신규"][0]["bbox"][0] - 0.5
-        g.put(p1, e, 0, 3, [strip_runs(runs_of(line, x0=split, x1=new))], frame(shade, top="soft", bottom="soft"),
-              align="LEFT")
-        g.put(167.1, 185.9, 0, 1, [], frame(shade, top="soft"))
+        g.put(p1, e, 1, 2, [strip_runs(runs_of(line, x0=split, x1=new))], frame(shade), align="LEFT")
         g.put(167.1, 185.9, 1, 2, [runs_of(line, x0=new)], OUTLINED, line=950, fit=False)
         tight(g, 167.1, 1)
-        g.put(167.1, 185.9, 2, 3, [], frame(shade, bottom="soft"))
-        g.put(185.9, 188.0, 0, 3, [], frame(shade, top="soft", bottom="soft"))
+        g.put(185.9, 188.0, 1, 2, [], frame(shade))
     else:
-        g.put(p1, e, 0, 3, [strip_runs(runs_of(line, x0=split))], frame(shade, top="soft", bottom="soft", **edge),
-              align="LEFT")
+        g.put(p1, e, 1, 2, [strip_runs(runs_of(line, x0=split))], frame(shade, **side), align="LEFT")
 for k, (a, e) in enumerate(step_arrows):
     g.put(a, e, 0, 3, "▶", frame(shades[k], top="soft", bottom="soft"), size=800, color="#7F7F7F", fit=False)
 block(g, 649.9)

@@ -65,7 +65,7 @@ def section_band(name, y, top):
 
 def pill_line(name, line, top, pills, edges, check_x=(X0, 67.3)):
     """'□ [Why] title [How] title': check box, dark pills and title cells cut from one PDF line."""
-    g = Grid(name, [check_x[0], check_x[1]] + edges, [1560])
+    g = Grid(name, [check_x[0], check_x[1]] + edges, [1660])
     g.put(*check_x, 0, 1, "□", size=1200, line=1250, fit=False)
     for k, (a, e) in enumerate(zip(edges, edges[1:])):
         runs = strip_runs(runs_of(line, x0=a - 1, x1=e - 1))
@@ -150,7 +150,7 @@ block(g, 282.5)
 # ---------------------------------------------------------------------------
 section_band("section-2", 334.9, 332.0)
 
-g = Grid("title-ga", [X0, 431.3, 501.8, 503.9, X1], [1510])
+g = Grid("title-ga", [X0, 431.3, 501.8, 503.9, X1], [1660])
 g.put(X0, 431.3, 0, 1, [line1(55, 60, 360, 364)], align="LEFT", line=1450)
 g.put(431.3, 501.8, 0, 1, "Best Practice", TAG, size=800, bold=True, color=WHITE, line=950)
 g.put(503.9, X1, 0, 1, "지적사항 개선", TAG, size=800, bold=True, color=WHITE, line=950)
@@ -209,13 +209,13 @@ for k, (top, p0, p1, end, nxt) in enumerate(labels):
     fill = frame(FILLS[k])
     pill = line1(70, 75, p0, p1 + 2)
     texts = [l for l in lines_in(56, 113, p1, end) if not l["text"].startswith("STEP")]
-    g.put(X0, 66.4, r[top], r[end], [], fill)
-    g.put(103.9, 113.6, r[top], r[end], [], fill)
-    g.put(66.4, 103.9, r[top], r[p0], [], fill)
-    g.put(66.4, 103.9, r[p0], r[p1], [pill], pill_box, line=1000, fit=False)
+    g.put(X0, 113.6, r[top], r[p0], [], fill)
+    g.put(X0, 66.4, r[p0], r[p1], [], fill)
+    g.put(66.4, 103.9, r[p0], r[p1], [pill], pill_box, line=980, fit=False)
     tight(g, 66.4, r[p0])
-    g.put(66.4, 103.9, r[p1], r[end], [runs_of(t) for t in texts], fill, line=1320, fit=False)
-    tight(g, 66.4, r[p1], 0, 0)
+    g.put(103.9, 113.6, r[p0], r[p1], [], fill)
+    g.put(X0, 113.6, r[p1], r[end], [runs_of(t) for t in texts], fill, line=1320)
+    tight(g, X0, r[p1], 60, 60)
     if nxt != end:
         g.put(X0, 113.6, r[end], r[nxt], [], frame(FILLS[k + 1]))
 # STEP1 / STEP2 boxes: gray header, three bullet lines

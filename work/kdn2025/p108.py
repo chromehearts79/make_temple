@@ -103,10 +103,11 @@ for a, e in ((X0, 213.8), (227.6, 384.8), (398.6, X1)):
 for a, e, edge in ((X0, 135.5, dict(left="mid", right="soft")), (135.5, 213.8, dict(right="mid"))):
     g.put(a, e, 1, 2, [line1(a, e, 190, 194)], frame("#E6E6E6", bottom="soft", **edge))
 row1 = line1(60, 65, 203, 207)
-g.put(X0, 135.5, 2, 3, [runs_of(row1, x1=137)], frame(left="mid", right="dot", bottom="dot"), align="LEFT")
-g.put(135.5, 213.8, 2, 3, [runs_of(row1, x0=137)], frame(right="mid", bottom="dot"), align="LEFT")
-g.put(X0, 135.5, 3, 4, [line1(60, 65, 216, 220)], frame(left="mid", right="dot", bottom="mid"), align="LEFT")
-g.put(135.5, 213.8, 3, 4, [line1(136, 140, 216, 220)], frame(right="mid", bottom="mid"), align="LEFT")
+g.put(X0, 135.5, 2, 3, [runs_of(row1, x1=137)], frame(left="mid", right="dot", bottom="dot"), align="LEFT", line=1150)
+g.put(135.5, 213.8, 2, 3, [runs_of(row1, x0=137)], frame(right="mid", bottom="dot"), align="LEFT", line=1150)
+g.put(X0, 135.5, 3, 4, [line1(60, 65, 216, 220)], frame(left="mid", right="dot", bottom="mid"), align="LEFT",
+      line=1150)
+g.put(135.5, 213.8, 3, 4, [line1(136, 140, 216, 220)], frame(right="mid", bottom="mid"), align="LEFT", line=1150)
 for a, e in ((227.6, 384.8), (398.6, X1)):
     g.put(a, e, 1, 4, lines_in(a, e, 188, 230), frame(bottom="mid", **side), align="LEFT", line=1320)
 g.put(213.8, 227.6, 1, 4, "▶", size=1100, color="#BDBDBD", fit=False)
@@ -153,9 +154,9 @@ xs = sorted({X0, LAB, 265.0, 413.5} | {x for b in r1 for x in b} | {x for b in r
             | {x for b in r3 for x in b})
 hs = [1820, 1710, 400, 1720, 2290, 430, 290, 1250, 1250, 1250, 1100, 240]
 g = Grid("rows123", xs, hs)
-label(g, 0, 2, [[S("①", 1040), S("전략방향", 1040, True)], [S("및 경영목표", 1040, True)]])
-label(g, 3, 5, [[S("② ", 1040), S("고려요소", 1040, True)]])
-label(g, 6, 12, [[S("③ ", 1040), S("편성방향", 1040, True)]])
+label(g, 0, 2, [[S("①", 1040), S("전략방향", 1040)], [S("및 경영목표", 1040)]])
+label(g, 3, 5, [[S("② ", 1040), S("고려요소", 1040)]])
+label(g, 6, 12, [[S("③ ", 1040), S("편성방향", 1040)]])
 goals = (("디지털 융합", "매출 2조원"), ("사업 다각화", "미래신사업 매출 6천억원"),
          ("ESG 선도", "안전, 상생 가치창출"), ("시스템 경영", "시스템 및 기술혁신"))
 for (a, e), (head, value) in zip(r1, goals):
@@ -166,7 +167,7 @@ factors = (("거시경제 환경", ["환율 등 금융시장 변동성 심화", 
            ("경영 전략", ["사업구조 전환을 위한 투자사업 확대", "기저사업 디지털경쟁력 강화"]))
 for k, ((a, e), (head, items)) in enumerate(zip(r2, factors)):
     g.put(a, e, 3, 4, head, frame(HEAD), size=1100, bold=True)
-    g.put(a, e, 4, 5, [dot(" " + t) for t in items], align="LEFT", line=1100)
+    g.put(a, e, 4, 5, [dot(" " + t) for t in items], align="LEFT", line=1060)
     if k < 2:
         b = r2[k + 1][0]
         mid = 265.0 if k == 0 else 413.5
@@ -184,7 +185,7 @@ for (a, lab, t0, t1, e), plan, rows, result in zip(r3, plans, tagged, results):
     for i, (tag, text) in enumerate(rows):
         r = 7 + i
         g.put(lab, t0, r, r + 1, [])
-        g.put(t0, t1, r, r + 1, tag, OUTLINED, size=950, line=1050)
+        g.put(t0, t1, r, r + 1, tag, OUTLINED, size=950, line=1050, ratio=80, fit=False)   # padding 40/40
         flat(g, t0, r, 40, 40)
         runs = text if isinstance(text, list) else [S(text)]
         g.put(t1, e, r, r + 1, [runs], frame(right="soft"), align="LEFT", line=1150)

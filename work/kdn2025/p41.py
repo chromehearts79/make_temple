@@ -70,7 +70,7 @@ def titled(name, line, edges, top, tag):
     g.put(edges[0], edges[1], 0, 1, [strip_runs(runs[:1])], align="LEFT", line=1450)
     g.put(edges[1], edges[2], 0, 1, [runs[1]], pill)
     g.put(edges[2], edges[3], 0, 1, [strip_runs(runs[2:])], align="LEFT", line=1450)
-    g.put(edges[3] + 1.0, edges[4], 0, 1, sticker(tag), frame("#3C3C3C"), line=1000)
+    g.put(edges[3], edges[4], 0, 1, sticker(tag), frame("#3C3C3C"), line=1000)
     block(g, top)
 
 
@@ -112,7 +112,7 @@ g.put(332.5, X1, 0, 1, [runs_of(head, WHITE, x0=334.0)], frame("#7A7A7A", top="m
 arrow_lines = {l["text"] for l in lines_in(60, 65, 233, 282) if not l["text"].startswith("∙")}
 g.put(X0, 228.5, 1, 2, hang(lines_in(60, 75, 200, 282), 62.5, {t: "→ " for t in arrow_lines}),
       frame(left="mid", right="mid", bottom="mid"), align="LEFT", line=1650)
-g.put(228.5, 242.4, 0, 2, "▶", size=1300, color=ARROW)
+g.put(228.5, 242.4, 0, 2, "▶", size=1000, color=ARROW)
 g.put(242.4, 445.8, 1, 2, hang(lines_in(245, 265, 195, 287), 248.3), frame(left="mid", bottom="mid"),
       align="LEFT", line=1540)
 g.put(445.8, 552.6, 1, 2, [], photo)
@@ -159,7 +159,7 @@ g.put(191.3, 209.0, 3, 8, "▶", size=1100, color=ARROW)
 pills = line1(210, 220, 503, 507)
 g.put(209.0, 240.5, 1, 3, [runs_of(pills, x1=240.0)],
       frame(WHITE, top="soft", bottom="soft", left="soft", right="soft"))
-g.put(240.5, 297.5, 1, 3, [runs_of(pills, x0=240.0, x1=300.0) + [("→", 1000, True, "#555555")]])
+g.put(240.5, 297.5, 1, 3, [runs_of(pills, x0=240.0, x1=300.0) + [(" →", 1000, True, "#555555")]])
 g.put(297.5, 328.7, 1, 3, [runs_of(pills, WHITE, x0=300.0, x1=325.0)], frame("#5E5E5E"))
 g.put(328.7, 373.5, 1, 3, [strip_runs(runs_of(pills, x0=325.0))], align="LEFT")
 hatched = frame("#EAEAEA", hatch="#DEDEDE")

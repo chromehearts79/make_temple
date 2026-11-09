@@ -87,7 +87,7 @@ class Renderer:
             for child in run:
                 tag = E.QName(child).localname
                 if tag == "tbl":
-                    blocks.append(self.table(child))
+                    blocks.append(self.table(child, para["align"]))
                 elif tag == "t" and child.text:
                     ratio, size = char["ratio"], char["size"]
                     weight = "font-weight:700;-webkit-text-stroke:0.6px currentColor" if char["bold"] else "font-weight:400"
@@ -107,7 +107,7 @@ class Renderer:
             out += f'<div style="height:{pt(para["line"]) if para["line_type"] == "FIXED" else size}pt"></div>'
         return out
 
-    def table(self, tbl):
+    def table(self, tbl, align="LEFT"):
         cells = []
         for row in tbl.findall("hp:tr", NS):
             for tc in row.findall("hp:tc", NS):
@@ -146,7 +146,9 @@ class Renderer:
         cols = "".join(f'<col style="width:{w}pt">' for w in widths)
         trs = "".join(f'<tr style="height:{h}pt">{"".join(r)}</tr>' for r, h in zip(rows, heights))
         gap = pt(tbl.find("hp:outMargin", NS).get("bottom"))
-        markup = (f'<table style="width:{sum(widths)}pt;margin-bottom:{gap}pt">'
+        # A table placed like a character follows its paragraph's alignment (e.g. a tag box in a cell).
+        side = {"CENTER": "margin-left:auto;margin-right:auto;", "RIGHT": "margin-left:auto;"}.get(align, "")
+        markup = (f'<table style="width:{sum(widths)}pt;margin-bottom:{gap}pt;{side}">'
                   f"<colgroup>{cols}</colgroup>{trs}</table>")
         pos = tbl.find("hp:pos", NS)
         if pos.get("treatAsChar") == "0" and pos.get("vertRelTo") == "PAPER":

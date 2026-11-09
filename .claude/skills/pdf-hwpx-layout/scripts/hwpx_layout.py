@@ -157,11 +157,14 @@ class Layout:
         return el
 
 
-    def add_table(self, rows, *, gap=0, floating=None):
+    def table(self, rows, *, gap=0):
+        """Build a table placed like a character, without adding it to the page."""
         # Every cell specifies its width, height, content self.paragraphs, and fill.
         table = deepcopy(self.old_table)
         for row in table.findall("hp:tr", self.ns): table.remove(row)
-        table.set("id",str(5000+len(self.section)))
+        # Unique within the page, also for tables nested in cells (merge_hwpx renumbers them).
+        self.last_table_id = max(5000 + len(self.section), getattr(self, "last_table_id", 0) + 1)
+        table.set("id",str(self.last_table_id))
         table.set("rowCnt",str(len(rows)))
         table.set("colCnt",str(max(c[0]+c[6] for row in rows for c in row)))
         table.set("repeatHeader","0")
@@ -198,6 +201,11 @@ class Layout:
                 m=self.get(cell,"hp:cellMargin")
                 for key,val in padding.items():
                     m.set(key,str(val))
+        return table
+
+
+    def add_table(self, rows, *, gap=0, floating=None):
+        table = self.table(rows, gap=gap)
         if floating:
             table.set("textWrap","IN_FRONT_OF_TEXT")
             table.set("textFlow","BOTH_SIDES")
@@ -210,6 +218,36 @@ class Layout:
             holder = self.add_text(size=100,line=0)
             holder[0].insert(0,table)
         return table
+
+
+    def nest(self, rows, *, align="CENTER"):
+        """A cell paragraph holding a small table: a box inside a box, such as a label tag.
+
+        The inner table sits like a character, so the paragraph alignment places it. The
+        paragraph uses percent line spacing so its line grows to the inner table's height.
+        """
+        holder = self.p(size=100, line=0, align=align)
+        holder[0].insert(0, self.table(rows))
+        return holder
+
+
+    def tagged(self, tag, text, width, height, tag_fill, *, tag_size=900, tag_color="#FFFFFF",
+               size=1080, color="#161616", ratio=80, gap=200, align="CENTER", bold=True):
+        """Cell contents with a small filled tag box followed by text, both centred vertically.
+
+        A one-row nested table: the tag cell has the fill, the text cell has none. The pair is
+        sized from text_width() and centred in the outer cell, never wider than `width`, the
+        outer cell's inner width (cell width minus its left and right padding).
+        """
+        tag_w = text_width(tag, tag_size, ratio) + 300 + 200
+        text_w = min(text_width(text, size, ratio) + gap + 300, width - tag_w)
+        pad = dict(left=150, right=150, top=0, bottom=0)
+        return [self.nest([[
+            cell(0, tag_w, height, [self.p(tag, tag_size, True, tag_color, align="CENTER",
+                                            line=tag_size + 200, ratio=ratio)], tag_fill, margin=pad),
+            cell(1, text_w, height, [self.p(text, size, bold, color, line=size + 170, ratio=ratio)],
+                 margin=dict(pad, left=gap, right=0)),
+        ]], align=align)]
 
 
     def center(self, text,size=1090,bold=False,color="#161616"):
@@ -236,6 +274,16 @@ class Layout:
                     blob = "\n".join(lines).encode("utf-8")
                 dst.writestr(info, blob)
         return output
+
+
+def text_width(text, size, ratio=100):
+    """Generous one-line advance width in 1/100 pt, for sizing cells that must not wrap.
+
+    Hangul, CJK and other non-ASCII glyphs count 1 em, ASCII 0.6 em and spaces 0.35 em,
+    so the estimate is at or above the real width in KoPub-style fonts.
+    """
+    ems = sum(0.35 if ch == " " else 0.6 if ord(ch) < 0x80 else 1.0 for ch in text)
+    return round(ems * size * ratio / 100)
 
 
 def cell(index, width, height, contents, fill="1", span=1, colspan=1, margin=None):

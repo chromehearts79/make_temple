@@ -89,11 +89,21 @@ tab([[label(0,3900,3380,"배경"),c(1,46000,3380,[only(100,105,520,523),
 # Three editable strategy cards with narrow gutters.
 card_width=15650
 gap_width=1475
+# Each card title starts with a small filled tag box inside the title box (PDF: one text line).
+card_tags=("예측 고도화","정부협의 체계화","고용유지 최대화")
+tag_fill=border("#686868")
 def cards_row(y,h,mode):
     row=[]
     for i,(l,r) in enumerate([(57,220),(229,390),(400,560)]):
         if i: row.append(c(i*2-1,gap_width,h,"+" if mode=="body" else "",align="CENTER",bold=True,size=1450,color="#777777",line=1650))
         v=reg(l,r,y,y+3) if mode!="body" else reg(l,r,y,y+30)
+        if mode=="head":
+            title=only(l,r,y,y+3)
+            if not title.startswith(card_tags[i]+" "):
+                raise ValueError(f"Card title {title!r} does not start with tag {card_tags[i]!r}")
+            row.append(cell(i*2,card_width,h,layout.tagged(card_tags[i],title[len(card_tags[i]):].strip(),
+                            card_width-300,1400,tag_fill),outline,margin=dict(left=150,right=150)))
+            continue
         if mode=="body" and i==0: v[-1]="→ "+v[-1]
         row.append(c(i*2,card_width,h,v,{"head":outline,"body":white,"result":gray2}[mode],
                      bold=mode!="body",align="LEFT" if mode=="body" else "CENTER",

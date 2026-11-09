@@ -220,7 +220,7 @@ for (y0, yp, y1, y2), fill, color, pill_y, text_y in (
         ((563.0, 609.0, 620.0, 681.0), "#8E8E8E", WHITE, 612, (624, 645))):
     g.put(59.5, 96.6, R(y0), R(yp), [], frame(fill))
     g.put(59.5, 63.8, R(yp), R(y1), [], frame(fill))
-    g.put(63.8, 92.2, R(yp), R(y1), [line1(68, 72, pill_y, pill_y + 2)], PILL, line=950, fit=False)
+    g.put(63.8, 92.2, R(yp), R(y1), [line1(68, 72, pill_y, pill_y + 2)], PILL, line=900, fit=False)
     tight(g, 63.8, R(yp))
     g.put(92.2, 96.6, R(yp), R(y1), [], frame(fill))
     g.put(59.5, 96.6, R(y1), R(y2), [runs_of(l, color) for l in lines_in(60, 75, *text_y)], frame(fill),
@@ -270,12 +270,16 @@ COURSES = (("인공지능", "AX 혁신", (("슈퍼앱 전성시대,", "너 하�
                                        ("상상을 현실로! 미드저니", "실전 이미지 제작"), ("AI로 레벨업하는", "문서 작성 스킬")),
             "AI 활용 Biz Skill"))
 for (a, e), (top, tab, items, bottom) in zip(((453.7, 501.0), (505.5, 553.0)), COURSES):
-    g.put(a, e, R(713.6), R(725.0), top, frame("#E3E3E3"), size=820, bold=True, line=950)
-    g.put(a, e, R(725.0), R(738.0), tab, frame("#6E6E6E"), size=820, color=WHITE, line=950)
+    for y0, y1, text, fill, color, bold in ((713.6, 725.0, top, "#E3E3E3", INK, True),
+                                            (725.0, 738.0, tab, "#6E6E6E", WHITE, False),
+                                            (789.0, 799.0, bottom, "#C8C8C8", INK, True)):
+        g.put(a, e, R(y0), R(y1), text, frame(fill), size=760, bold=bold, color=color, ratio=80, line=840,
+              fit=False)
+        tight(g, a, R(y0), 40, 40)
     for (y0, y1), pair in zip(((738.0, 755.0), (755.0, 772.0), (772.0, 789.0)), items):
-        g.put(a, e, R(y0), R(y1), [[S(t, 640)] for t in pair], frame(left="soft", right="soft", bottom="soft"),
-              line=740)
-    g.put(a, e, R(789.0), R(799.0), bottom, frame("#C8C8C8"), size=820, bold=True, line=950)
+        g.put(a, e, R(y0), R(y1), [[S(t, 560)] for t in pair], frame(left="soft", right="soft", bottom="soft"),
+              ratio=75, line=660, fit=False)
+        tight(g, a, R(y0), 40, 40)
 block(g, 408.1)
 
 kit.finish(target, end=802.0)

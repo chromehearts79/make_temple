@@ -107,7 +107,7 @@ block(g, 32.0)
 # ---------------------------------------------------------------------------
 heading("title-na", 71.0, 69.8, 503.9)
 
-g = Grid("workload", [X0, 102.0, 410.2, X1], [1850, 4720, 4680, 120])     # y 91.5 .. 205.2
+g = Grid("workload", [X0, 102.0, 410.2, X1], [1850, 4720, 4800])     # y 91.5 .. 205.2
 g.put(X0, 102.0, 0, 1, [line1(65, 70, 94, 98)], frame(HEAD, top="mid", right="soft"))
 g.put(102.0, 410.2, 0, 1, [line1(230, 240, 94, 98)], frame(HEAD, top="mid"))
 g.put(410.2, X1, 0, 1, [runs_of(line1(460, 465, 94, 98), WHITE)], frame(RESULT_HEAD, top="strong", left="strong",
@@ -117,9 +117,8 @@ for r, (y0, y1) in enumerate(((110.0, 157.2), (157.2, 204.0)), 1):
     g.put(X0, 102.0, r, r + 1, lines_in(55, 104, y0, y1), frame(LIGHT, bottom=rule), line=1430)
     g.put(102.0, 410.2, r, r + 1, hang(lines_in(104, 110, y0, y1), 105.1), frame(bottom=rule), align="LEFT",
           line=1430)
-g.put(X0, 410.2, 3, 4, [])
 result = hang(lines_in(412, 420, 112, 185), 414.0) + [[("  → ", B, True, INK)] + runs_of(line1(430, 435, 186, 190))]
-g.put(410.2, X1, 1, 4, result, frame(left="strong", right="strong", bottom="strong"), align="LEFT", line=1530)
+g.put(410.2, X1, 1, 3, result, frame(left="strong", right="strong", bottom="strong"), align="LEFT", line=1530)
 block(g, 91.5)
 
 # ---------------------------------------------------------------------------
@@ -148,7 +147,7 @@ CHARTS = [(337.8, ["임신기 근로", "단축 사용자수"], "36%↑", "22명"
           (484.0, ["육 아 시 간", "사 용 자 수"], "40%↑", "138명", "193명")]
 SUB = (1150, 1150, 1050, 950)                            # label / '25 value, '24 value, tag + axis, years
 LEFT_ROWS = (333.2, 366.0, 412.5, 487.2, 561.5)
-ys = [314.5, *LEFT_ROWS, 527.0, 562.8]
+ys = [314.5, *LEFT_ROWS, 527.0]
 for top, *_ in CHARTS:
     ys += [top + sum(SUB[:i]) / 100 for i in range(5)]
 R = Rows(ys)
@@ -168,10 +167,10 @@ for k, (y0, y1) in enumerate(zip(LEFT_ROWS, LEFT_ROWS[1:])):
     g.put(102.0, 441.2, R(y0), R(y1), hang(lines_in(104, 110, y0, y1 - 1), 105.1), frame(bottom=rule),
           align="LEFT", line=1410)
 # result column: margins carry the dark frame (single-row cells keep every row defined)
-for r in range(1, len(R.ys) - 2):
-    g.put(441.2, 445.0, r, r + 1, [], frame(left="strong"))
-    g.put(552.7, X1, r, r + 1, [], frame(right="strong"))
-g.put(441.2, X1, len(R.ys) - 2, len(R.ys) - 1, [], frame(left="strong", right="strong", bottom="strong"))
+last = len(R.ys) - 2
+for r in range(1, last + 1):
+    g.put(441.2, 445.0, r, r + 1, [], frame(left="strong", bottom="strong" if r == last else None))
+    g.put(552.7, X1, r, r + 1, [], frame(right="strong", bottom="strong" if r == last else None))
 box = dict(left="soft", right="soft")
 plot = "#EEEEEE"
 for top, names, rise, before, after in CHARTS:
@@ -190,7 +189,8 @@ for top, names, rise, before, after in CHARTS:
     g.put(518.6, 552.7, r2, r3, [], frame(plot, bottom="mid"))
     g.put(484.4, 518.6, r3, r4, "’24년", frame(plot), size=800, line=790)
     g.put(518.6, 552.7, r3, r4, "’25년", frame(plot), size=800, bold=True, line=790)
-g.put(445.0, 552.7, R(527.0), R(561.5), hang(lines_in(444, 455, 529, 550), 445.2), align="LEFT", line=1520)
+g.put(445.0, 552.7, R(527.0), R(561.5), hang(lines_in(444, 455, 529, 550), 445.2), frame(bottom="strong"),
+      align="LEFT", line=1520)
 block(g, 314.5)
 
 # ---------------------------------------------------------------------------

@@ -59,7 +59,9 @@ def tag_borders():
     L.sub(L.sub(edge, "hc:fillBrush"), "hc:winBrush", faceColor=WHITE, hatchColor="#E1E1E1", alpha="0")
     box = L.append_style(L.borders, edge)
     made = {}
-    for run in L.section.iter(L.q("hp:run")):
+    # Grids are only queued by block(); walk their cell paragraphs before finish() lays them out.
+    paragraphs = [par for grid, _ in kit.BLOCKS for item in grid.items.values() for par in item[3]]
+    for run in (r for par in paragraphs for r in par.iter(L.q("hp:run"))):
         t = run.find(L.q("hp:t"))
         if t is None or (t.text or "").strip() not in TAGS:
             continue

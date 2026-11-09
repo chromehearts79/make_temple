@@ -76,7 +76,7 @@ for k in range(8):
     hs += [int(round((strips[k] - 2.0 - bounds[k]) * 100)), int(round((bounds[k + 1] - strips[k] + 2.0) * 100))]
 g = Grid("table", [X0, XL, XR, X1], hs)
 head_light = frame("#D7D7D7", top="strong", left="soft", right="soft")
-g.put(X0, XL, 0, 1, [line1(100, 110, 138, 142)], head_light, bold=True, size=1160)
+g.put(X0, XL, 0, 1, [line1(100, 110, 138, 142)], head_light)
 g.put(XL, XR, 0, 1, [line1(315, 320, 138, 142)], frame("#808080", top="strong", left="soft", right="soft"),
       color=WHITE)
 g.put(XR, X1, 0, 1, [line1(525, 530, 138, 142)], head_light)

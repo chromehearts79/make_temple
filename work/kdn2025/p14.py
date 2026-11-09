@@ -159,6 +159,8 @@ g = Grid("chevrons", [X0, XL] + sorted({x for c in COLS4 for x in c}), [525])
 for a, e in COLS4:
     g.put(a, e, 0, 1, "▼", size=500, color="#7A7A7A", line=500)
     pad(g, a, 0, top=0, bottom=0)
+# put() measured these with the default 1.6 pt padding; pad() removed it, so the glyph fits.
+kit.WARN[:] = [w for w in kit.WARN if not w.startswith("chevrons:")]
 block(g, 501.0)
 
 # 53개 실행과제 (outlined) over 주요성과지표(KPI) (gray).

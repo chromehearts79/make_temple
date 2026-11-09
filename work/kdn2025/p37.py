@@ -109,10 +109,10 @@ steps = [((115.0, 129.0, 261.4), "윤리위험 식별",
          ((412.5, 426.5, X1), "윤리위험 분류",
           ["기관장 주재 리스크 선정 회의", "→핵심위험 확정 및 타겟 설정", "핵심위험 및 일반위험 분류"])]
 starts = [115.0, 261.4, 409.5]
-for k, ((a, b, e), head, bullets) in enumerate(steps):
+for k, ((a, b, e), head, items) in enumerate(steps):
     g.put(a, b, 0, 1, str(k + 1), frame(DARKB, top="mid"), size=1050, bold=True, color=WHITE)
     g.put(b, e, 0, 1, head, frame("#EEEEEE", top="mid", hatch="#D2D2D2"), align="LEFT", size=1090, bold=True)
-    body = [[run("∙ " if not t.startswith("→") else "  ", 1000), run(t, 1000)] for t in bullets]
+    body = [[run("∙ " if not t.startswith("→") else "  ", 1000), run(t, 1000)] for t in items]
     g.put(starts[k], e, 1, 2, body, frame(right="dot") if k < 2 else "1", align="LEFT", line=1300)
 strong_box = dict(left="strong", right="strong")
 g.put(115.0, 334.0, 3, 4, "기관장 선정 4대 핵심위험", frame(top="strong", **strong_box), size=1100, bold=True)
@@ -223,7 +223,7 @@ block(g, 355.4)
 # ---------------------------------------------------------------------------
 # 다. 핵심위험 통제
 # ---------------------------------------------------------------------------
-title_badge("title-da", line1(55, 60, 537, 541), [X0, 73.0, 142.5, 503.5, X1], 536.7, badge="지적사항 개선")
+title_badge("title-da", line1(55, 60, 537, 541), [X0, 75.5, 142.5, 503.5, X1], 536.7, badge="지적사항 개선")
 
 head = line1(68, 72, 558, 562)
 g = Grid("heading-gap", [X0, 456.5, 510.5, X1], [1600])

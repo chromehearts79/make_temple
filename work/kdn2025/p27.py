@@ -80,8 +80,8 @@ block(g, 70.9)
 subtitle("title-ga", 101.0, line1(95, 100, 99, 103), [X0, 76.9, 162.9, X1], 99.8, "①", 160.0)
 
 # Left: 혁신 추진조직 체계 (image in the PDF). Right: 주요 개선사항 (text layer, 신설 tags boxed).
-left_xs = [X0, 61.5, 86.5, 111.5, 119.2, 123.0, 131.0, 148.5, 174.0, 177.0, 180.0, 183.0, 185.5, 211.0, 229.0,
-           236.5, 241.8, 248.5, 274.5, 300.5, 302.6]
+left_xs = [X0, 61.5, 86.5, 111.5, 119.7, 123.0, 131.0, 148.5, 174.0, 178.0, 180.0, 182.0, 185.5, 211.0, 229.0,
+           236.5, 241.2, 248.5, 274.5, 300.5, 302.6]
 TAG0, TAG1 = 346.3, 368.5
 right_xs = [310.3, TAG0, TAG1, X1]
 groups = [(141.0, 149.0, 164.0, 179.0, 185.4), (185.4, 191.5, 206.5, 221.5, 228.0),
@@ -110,23 +110,23 @@ for (a, b), last in (((86.5, 148.5), False), ((148.5, 211.0), False), ((211.0, 2
 units = [((61.5, 111.5), "AX·DX 혁신", "IT운영사업처장"), ((123.0, 174.0), "에너지전환 혁신", "ICT기획처장"),
          ((185.5, 236.5), "ESG 혁신", "ESG경영처장"), ((248.5, 300.5), "경영시스템 혁신", "기획처장")]
 box = dict(top="soft", bottom="soft", left="soft", right="soft")
-unit_ratio = min(fit_ratio([(t, 920, False, INK)], b - a) for (a, b), *texts in units for t in texts)
+unit_ratio = min(fit_ratio([(t, 860, False, INK)], b - a) for (a, b), *texts in units for t in texts)
 for (a, b), head, name in units:
-    g.put(a, b, r(202.5), r(217.5), head, frame(HEADFILL, **box), size=920, ratio=unit_ratio, fit=False, line=1100)
-    g.put(a, b, r(217.5), r(234.0), name, frame(**box), size=920, ratio=unit_ratio, fit=False, line=1100)
+    g.put(a, b, r(202.5), r(217.5), head, frame(HEADFILL, **box), size=860, ratio=unit_ratio, fit=False, line=1100)
+    g.put(a, b, r(217.5), r(234.0), name, frame(**box), size=860, ratio=unit_ratio, fit=False, line=1100)
     tight(g, a, r(202.5))
     tight(g, a, r(217.5))
 g.put(61.5, 180.0, r(242.5), r(264.0), "참여·협업", frame(right="mid"), align="RIGHT", size=1000)
 g.put(180.0, 300.5, r(242.5), r(264.0), "협의·자문", align="LEFT", size=1000)
-g.put(119.2, 180.0, r(264.0), r(273.5), [], frame(top="mid", left="mid"))
-g.put(180.0, 241.8, r(264.0), r(273.5), [], frame(top="mid", right="mid"))
-networks = [((61.5, 177.0), "혁신 소통채널", ["(외부) 국민제안 혁신 DESK, SNS 등", "(내부) INNO-CATION, 혁신제안시스템 등"]),
-            ((183.0, 300.5), "혁신 네트워크", ["(외부) 품질분임조자문그룹, ESG자문단 등", "(내부) 미래사업전략협의회, ESG위원회 등"])]
+g.put(119.7, 180.0, r(264.0), r(273.5), [], frame(top="mid", left="mid"))
+g.put(180.0, 241.2, r(264.0), r(273.5), [], frame(top="mid", right="mid"))
+networks = [((61.5, 178.0), "혁신 소통채널", ["(외부) 국민제안 혁신 DESK, SNS 등", "(내부) INNO-CATION, 혁신제안시스템 등"]),
+            ((182.0, 300.5), "혁신 네트워크", ["(외부) 품질분임조자문그룹, ESG자문단 등", "(내부) 미래사업전략협의회, ESG위원회 등"])]
 for (a, b), head, lines in networks:
     g.put(a, b, r(273.5), r(288.5), head, frame(top="soft", left="soft", right="soft"), size=1050, line=1200)
-    ratio = min(fit_ratio([(t, 820, False, INK)], b - a, pad_pt=1.6) for t in lines)
+    ratio = min(fit_ratio([(t, 790, False, INK)], b - a, pad_pt=1.6) for t in lines)
     g.put(a, b, r(288.5), r(310.5), lines, frame("#EFEFEF", bottom="soft", left="soft", right="soft"),
-          align="LEFT", size=820, ratio=ratio, line=920, fit=False)
+          align="LEFT", size=790, ratio=ratio, line=920, fit=False)
     tight(g, a, r(288.5), left=100)
 # Right panel.
 g.put(310.3, X1, 0, TOP, [line1(400, 405, 125, 130)], frame(HEADFILL, top="strong", left="mid", right="mid",

@@ -83,12 +83,12 @@ block(g, 70.9)
 # 가. 혁신과제 ⑦
 # ---------------------------------------------------------------------------
 ga = line1(55, 60, 99, 103)
-g = Grid("title-ga", [X0, 78.0, 137.0, 503.0, X1], [1700])
+g = Grid("title-ga", [X0, 78.0, 137.0, 503.0, X1], [1750])
 g.put(X0, 78.0, 0, 1, [runs_of(ga, x1=77.0)], align="LEFT", line=1550)
 g.put(78.0, 137.0, 0, 1, [runs_of(ga, x0=77.0) + [("⑦", 1100, True, INK)]], HATCH_PILL)
 g.put(137.0, 503.0, 0, 1, [line1(130, 140, 99, 103)], align="LEFT", line=1550)
 g.put(503.0, X1, 0, 1, "지적사항 개선", TAG, size=780, bold=True, color=WHITE)
-block(g, 99.8)
+block(g, 99.5)
 
 # Two boxes: 1 조직/제도 혁신 | 2 교육･홍보 강화
 xs = [X0, 75.2, 305.4, 308.5, 325.9, X1]
@@ -144,11 +144,11 @@ block(g, 447.0)
 # 나. 혁신과제 ⑧
 # ---------------------------------------------------------------------------
 na = line1(55, 60, 481, 485)
-g = Grid("title-na", [X0, 78.0, 140.1, X1], [1700])
+g = Grid("title-na", [X0, 78.0, 140.1, X1], [1750])
 g.put(X0, 78.0, 0, 1, [runs_of(na, x1=77.0)], align="LEFT", line=1550)
 g.put(78.0, 140.1, 0, 1, [runs_of(na, x0=77.0) + [("⑧", 1100, True, INK)]], HATCH_PILL)
 g.put(140.1, X1, 0, 1, [line1(138, 142, 481, 485)], align="LEFT", line=1550)
-block(g, 480.8)
+block(g, 480.5)
 
 # 경평 지적사항 분류: R&R table (left) ▶ 중점과제 도출 (right); rules at the PDF's vector positions.
 RX = [90.7, 114.4, 175.0, 235.6, 296.2, 356.8]
@@ -207,11 +207,11 @@ for (a, p, m, e), (t0, h0, v0, res0) in (
     title = line1(a + 2, a + 5, y - 1, y + 1)
     g.put(a, p, t0, t0 + 1, [runs_of(title, WHITE, x1=a + 40)], frame("#6E6E6E"))
     g.put(p, e, t0, t0 + 1, [runs_of(title, x0=a + 40)], align="LEFT", line=1400)
-    hy, vy = (655, 670) if t0 == 1 else (727, 743)
-    g.put(a, m, h0, h0 + 1, lines_in(a, m - 4, hy, hy + 3), frame("#CCCCCC", right=T), bold=True)
-    g.put(m, e, h0, h0 + 1, lines_in(m - 4, e, hy, hy + 3), frame("#CCCCCC"), bold=True)
-    g.put(a, m, v0, v0 + 1, lines_in(a, m - 4, vy, vy + 3), frame(bottom=T, right=T))
-    g.put(m, e, v0, v0 + 1, lines_in(m - 4, e, vy, vy + 3), frame(bottom=T))
+    hy, vy = (654, 668) if t0 == 1 else (726, 742)
+    g.put(a, m, h0, h0 + 1, lines_in(a, m - 4, hy, hy + 4), frame("#CCCCCC", right=T), bold=True)
+    g.put(m, e, h0, h0 + 1, lines_in(m - 4, e, hy, hy + 4), frame("#CCCCCC"), bold=True)
+    g.put(a, m, v0, v0 + 1, lines_in(a, m - 4, vy, vy + 5), frame(bottom=T, right=T))
+    g.put(m, e, v0, v0 + 1, lines_in(m - 4, e, vy, vy + 5), frame(bottom=T))
     ry = 685.2 if t0 == 1 else 759.0
     result = runs_of(line1(a + 10, a + 16, ry - 1, ry + 1))
     result = [(text.replace("시행  채용", "시행 → 채용"), *rest) for text, *rest in result]

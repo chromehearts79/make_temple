@@ -120,7 +120,7 @@ for k, (a, b, c, e) in enumerate(ISSUES):
     g.put(514.5, X1, r, r + 4, [line1(525, 530, a, e)], frame(bottom=rule))
 block(g, 105.8)
 
-g = Grid("notes", [X0, X1], [2900])
+g = Grid("notes", [X0, X1], [3000])
 g.put(X0, X1, 0, 1, [line1(55, 60, 379, 383), line1(55, 60, 393, 397)], align="LEFT", line=1400)
 block(g, 378.5)
 
@@ -173,7 +173,8 @@ for k, (a, e, split) in enumerate(ROWS):
         head = [s for s in line["spans"] if s["bbox"][0] < t0]
         lead = [("".join(s["text"] for s in head).rstrip(), int(round(head[0]["size"] * 10)) * 10, False, INK)]
         g.put(CX[2], CX[3], r, r + 1, mid[:-1], frame(GRAY), align="LEFT", line=1660)
-        g.put(CX[2], t0, r + 1, r + 2, [lead], frame(GRAY), align="LEFT", line=1300)
+        g.put(CX[2], t0, r + 1, r + 2, [lead], frame(GRAY), align="LEFT", line=1300, ratio=90, fit=False)
+        tight(g, CX[2], r + 1, 320, 0)
         g.put(t0, t1, r + 1, r + 2, [runs_of(line, x0=t0, x1=t1)], tag_box, line=1050, ratio=88, fit=False)
         tight(g, t0, r + 1)
         g.put(t1, CX[3], r + 1, r + 2, [strip_runs(runs_of(line, x0=t1))], frame(GRAY), align="LEFT", line=1300)

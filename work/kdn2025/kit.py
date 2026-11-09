@@ -221,7 +221,8 @@ class Grid:
         if not contents:
             contents = [blank()]
         if used > height:
-            WARN.append(f"{self.name}: cell {pars[0][0][0][:16]!r} needs {used} > {height}")
+            what = repr(pars[0][0][0][:16]) if pars else "(empty)"
+            WARN.append(f"{self.name}: cell {what} needs {used} > {height}")
         for r in range(r0, r1):
             for c in range(c0, c1):
                 if (r, c) in self.taken:

@@ -29,10 +29,13 @@ split = []
 for line in entries:
     name, _, rest = line["text"].partition("·")
     name, page = name.rstrip(), rest.strip("·").strip()
+    pill = name.endswith(" 계량")                                   # "계량" pill (an image)
+    name = name[:-3] if pill else name
     width = text_width([(name, 1480, False, INK)], 86.5)          # the PDF's own width
-    split.append((name, page, round(IN_L + width * 1.2 + 6, 1)))
+    end = round(IN_L + width * 1.2 + 6, 1)
+    split.append((name, page, end, round(end + 33, 1) if pill else None))
 
-xs = sorted({X0, BOX_L, IN_L, PAGE_L, IN_R, BOX_R, X1, *(end for *_, end in split)})
+xs = sorted({X0, BOX_L, IN_L, PAGE_L, IN_R, BOX_R, X1, *(x for *_, end, pill in split for x in (end, pill) if x)})
 hs = [6100, 6100, 2400] + [3100] * len(split) + [int(round((538 - 370) * 100)) - 3100 * len(split)]
 g = Grid("cover", xs, hs)
 last = len(hs)
@@ -40,9 +43,11 @@ g.put(BOX_L, BOX_R, 0, 1, [runs_of(number, bold=True)], line=5900, ratio=100)
 g.put(BOX_L, IN_L, 1, last, [], frame(left="mid", top="mid", bottom="mid"))
 g.put(IN_R, BOX_R, 1, last, [], frame(right="mid", top="mid", bottom="mid"))
 g.put(IN_L, IN_R, 1, 2, [runs_of(title)], frame(top="mid"), ratio=100)
-for row, (name, page, end) in enumerate(split, 3):
+for row, (name, page, end, pill) in enumerate(split, 3):
     g.put(IN_L, end, row, row + 1, name, align="LEFT", size=1480, ratio=100)
-    g.put(end, PAGE_L, row, row + 1, [], frame(bottom="dot"))
+    if pill:
+        g.put(end, pill, row, row + 1, "계량", frame("#DADADA"), size=1100, bold=True, ratio=100)
+    g.put(pill or end, PAGE_L, row, row + 1, [], frame(bottom="dot"))
     g.put(PAGE_L, IN_R, row, row + 1, page, align="RIGHT", size=1480, ratio=100)
 g.put(IN_L, IN_R, last - 1, last, [], frame(bottom="mid"))
 block(g, 226.0)

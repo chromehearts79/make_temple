@@ -1,9 +1,10 @@
-"""Rebuild every page of the 2025 KDN report (PDF pages 1-50), check each one and merge them.
+"""Rebuild pages of the 2025 KDN report, check each one and merge them into one HWPX.
 
-usage: python3 work/kdn2025/build_all.py <report.pdf> [--pages 1-50] [--no-merge]
+usage: python3 work/kdn2025/build_all.py <p001-050.pdf> [<p051-100.pdf>] [--pages 1-100] [--no-merge]
 
-Writes output/pNN.hwpx per page and output/kdn2025_report_p001-050.hwpx (one section per page).
-Pages whose script is missing are reported and left out of the merge.
+The report comes as 50-page PDFs: report page N is local page N-50 of the second PDF, etc.
+Writes output/pNN.hwpx per report page and output/kdn2025_report_pAAA-BBB.hwpx for the built range
+(one section per page). Pages whose script or PDF is missing are reported and left out of the merge.
 """
 
 import argparse
@@ -21,9 +22,12 @@ OUT = ROOT / "output"
 SHARED = {**{n: WORK / "blank.py" for n in (2, 4, 6, 8, 10, 46)},
           33: WORK / "p11.py", 47: WORK / "p11.py",      # 지표 정의
           34: WORK / "p12.py", 48: WORK / "p12.py",      # 세부목차
-          45: WORK / "p09.py",                            # chapter cover
-          44: WORK / "p32.py",                            # logo divider
-          49: SKILL / "kdn_p49.py", 50: SKILL / "kdn_p50.py"}
+          45: WORK / "p09.py", 99: WORK / "p09.py",       # chapter covers
+          44: WORK / "p32.py", 56: WORK / "p32.py", 66: WORK / "p32.py", 98: WORK / "p32.py",  # logo
+          49: SKILL / "kdn_p49.py", 50: SKILL / "kdn_p50.py", 51: SKILL / "kdn_p51.py",
+          100: WORK / "blank.py",
+          **{n: WORK / "p11.py" for n in (67, 75, 85)},   # 지표 정의 (57 has its own p57.py)
+          **{n: WORK / "p12.py" for n in (58, 68, 76, 86)}}   # 세부목차
 
 
 def pages(spec):
@@ -36,25 +40,31 @@ def pages(spec):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("pdf", type=Path)
-    ap.add_argument("--pages", default="1-50")
+    ap.add_argument("pdfs", type=Path, nargs="+", help="the report PDFs in order, 50 pages each")
+    ap.add_argument("--pages", default=None, help="report pages, e.g. 1-100 or 51-60,70")
     ap.add_argument("--no-merge", action="store_true")
     args = ap.parse_args()
 
     built, problems = [], []
-    for n in pages(args.pages):
+    wanted = pages(args.pages) if args.pages else range(1, 50 * len(args.pdfs) + 1)
+    for n in wanted:
+        part, local = (n - 1) // 50, (n - 1) % 50 + 1
+        if part >= len(args.pdfs):
+            problems.append(f"p{n:02}: no PDF given for report page {n}")
+            continue
+        pdf = args.pdfs[part]
         script = SHARED.get(n, WORK / f"p{n:02}.py")
         target = OUT / f"p{n:02}.hwpx"
         if not script.exists():
             problems.append(f"p{n:02}: no recipe ({script.name})")
             continue
-        run = subprocess.run([sys.executable, str(script), str(args.pdf), str(target), "--page", str(n)],
+        run = subprocess.run([sys.executable, str(script), str(pdf), str(target), "--page", str(local)],
                              capture_output=True, text=True)
         if run.returncode:
             problems.append(f"p{n:02}: build failed\n{run.stderr.strip()[-600:]}")
             continue
         check = subprocess.run([sys.executable, str(SKILL / "check_hwpx.py"), str(target),
-                                "--pdf", str(args.pdf), "--page", str(n)], capture_output=True, text=True)
+                                "--pdf", str(pdf), "--page", str(local)], capture_output=True, text=True)
         matched = re.search(r"PDF lines matched: (\d+/\d+)", check.stdout)
         status = "ok" if check.returncode == 0 else "CHECK FAILED"
         print(f"p{n:02}  {script.name:12} {matched.group(1) if matched else '-':>9}  {status}")
@@ -63,7 +73,8 @@ def main():
         built.append(target)
 
     if not args.no_merge and built:
-        merged = OUT / "kdn2025_report_p001-050.hwpx"
+        first, last = (int(p.stem[1:]) for p in (built[0], built[-1]))
+        merged = OUT / f"kdn2025_report_p{first:03}-{last:03}.hwpx"
         subprocess.run([sys.executable, str(SKILL / "merge_hwpx.py"), str(merged), *map(str, built)], check=True)
     for problem in problems:
         print("PROBLEM", problem)

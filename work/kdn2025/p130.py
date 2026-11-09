@@ -46,7 +46,10 @@ def hang(lines, base):
     out = []
     for l in lines:
         runs = runs_of(l)
-        n = max(0, round((l["bbox"][0] - base) / (0.29 * runs[0][1] / 100)))
+        size = runs[0][1] / 100
+        raw = "".join(s["text"] for s in l["spans"])
+        offset = l["bbox"][0] - base + (len(raw) - len(raw.lstrip(" "))) * 0.29 * size
+        n = max(0, round(offset / (0.29 * size)))
         out.append([(" " * n, runs[0][1], False, INK)] + runs if n else runs)
     return out
 

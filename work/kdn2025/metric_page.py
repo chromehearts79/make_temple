@@ -13,10 +13,11 @@ become filled / outlined cells.
 usage (work/kdn2025/p1NN.py):
 
     import metric_page as mp
-    mp.start(L, "<signature>")
+    mp.start(<local page>, "<signature>")
     t = mp.Table("scores", cols, rules)      # 1 실적 개요 table on the PDF's column / row rules
-    ...
-    mp.frame_page(odd=True, scores=t, data=dict(cols=..., rules=..., mid=None))
+    t.head_row(); t.body(x0, x1, r0, r1, ...)    # or t = mp.split_scores(...) for 실제 / 보정 pages
+    mp.frame_page(odd=True, scores=t, notes_range=(y0, y1) or None,
+                  data=dict(cols=..., rules=..., mid=<y between '25년 and 실제 / 보정> or None))
 """
 
 import sys
@@ -336,8 +337,11 @@ def box(name, top, bottom):
     tops = [l["bbox"][1] for l in lines]
     pitch = min((b - a for a, b in zip(tops, tops[1:])), default=17.7)
     g = Grid(name, [X0, X1], [int(round((bottom - top) * 100))])
+    # one 장평 for the box, narrowed when its longest line would not fit on one line at 90 %
+    avail = X1 - lines[0]["bbox"][0] - 2.0
+    ratio = min([90] + [int(86.5 * avail / (l["bbox"][2] - l["bbox"][0]) * 0.97) for l in lines])
     g.put(X0, X1, 0, 1, bullets(lines), frame(top="soft", bottom="soft", left="soft", right="soft"),
-          align="LEFT", line=int(round(pitch * 100)), fit=False)
+          align="LEFT", line=int(round(pitch * 100)), ratio=ratio, fit=False)
     margin(g, X0, 0, left=(lines[0]["bbox"][0] - X0) * 100, right=200)
     block(g, top)
 

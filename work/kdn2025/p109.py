@@ -54,6 +54,13 @@ def tight(g, x0, r0, left=0, right=0):
     g.items[r0, c0] = (*item[:7], dict(left=left, right=right))
 
 
+def flat(g, x0, r0, left=320, right=180):
+    """Zero top/bottom padding so a cell fits a thin spacer row (or a text row set tight)."""
+    c0 = g.xs.index(to_x(x0))
+    item = g.items[r0, c0]
+    g.items[r0, c0] = (*item[:7], dict(left=left, right=right, top=0, bottom=0))
+
+
 def tag_cell(x):
     """Tag column of a 신규/강화 span by its x (left box: 259 / 280, right box: 531)."""
     if x < 270:
@@ -70,6 +77,7 @@ def tab(g, x0, x1, n0, n1, line, r0):
     g.put(n0, n1, r0 + 1, r0 + 2, [runs_of(line, x1=split)], frame(WHITE), line=1000, fit=False)
     tight(g, n0, r0 + 1)
     g.put(n1, x1, r0 + 1, r0 + 2, [strip_runs(runs_of(line, WHITE, x0=split))], frame(TAB), align="LEFT")
+    flat(g, n1, r0 + 1)
     g.put(x0, x1, r0 + 2, r0 + 3, [], frame(TAB))
 
 
@@ -79,7 +87,7 @@ def box_band(name, top, heads, bodies, results, line_tops, pads):
     xs = [X0, 59.4, 71.2, 114.0, 123.5, 258.8, 277.6, 279.8, 298.6, 304.6, 307.3, 492.4, 498.1, 500.8,
           512.5, 530.5, 549.3, X1]
     n = len(line_tops)
-    hs = [250, 1370, 250, pads[0]] + [70, 1420, 70] * n + [pads[1], 800, 1650]
+    hs = [250, 1370, 250, pads[0]] + [200, 1160, 200] * n + [pads[1], 800, 1650]
     g = Grid(name, xs, hs)
     # heads
     (tab_line, title_line), (title_line2, tab_line2) = heads
@@ -87,11 +95,13 @@ def box_band(name, top, heads, bodies, results, line_tops, pads):
     g.put(114.0, 304.6, 0, 3, [title_line], frame(HEAD, top="soft", right="soft"), line=1300)
     g.put(307.3, 498.1, 0, 3, [title_line2], frame(HEAD, top="soft", left="soft"), line=1300)
     tab(g, 498.1, X1, 500.8, 512.5, tab_line2, 0)
+    g.put(304.6, 307.3, 3, 3 + 1 + 3 * n + 1, [])
     body_end = 3 + 1 + 3 * n + 1
     for (a, e), lines, edge in ((left, bodies[0], 298.6), (right, bodies[1], 549.3)):
         g.put(edge, e, 3, body_end, [], frame(right="soft"))
-        g.put(a, edge, 3, 4, [], frame(left="soft"))
-        g.put(a, edge, body_end - 1, body_end, [], frame(left="soft"))
+        for r in (3, body_end - 1):
+            g.put(a, edge, r, r + 1, [], frame(left="soft"))
+            flat(g, a, r)
         for i, line in enumerate(lines):
             r = 4 + 3 * i
             tags = [s for s in line["spans"] if s["text"].strip() in TAGS and s["size"] < 9]
@@ -101,14 +111,17 @@ def box_band(name, top, heads, bodies, results, line_tops, pads):
                 line = dict(line, spans=[s for s in line["spans"] if s["bbox"][0] < cut])
             runs = hang([line], a + 5.9)[0]
             runs[-1] = (runs[-1][0].rstrip(), *runs[-1][1:])
-            g.put(a, edge, r, r + 1, [], frame(left="soft"))
-            g.put(a, text_end, r + 1, r + 2, [runs], frame(left="soft"), align="LEFT", line=1260)
-            g.put(a, edge, r + 2, r + 3, [], frame(left="soft"))
+            for rr in (r, r + 2):
+                g.put(a, edge, rr, rr + 1, [], frame(left="soft"))
+                flat(g, a, rr)
+            g.put(a, text_end, r + 1, r + 2, [runs], frame(left="soft"), align="LEFT", line=1000)
+            g.items[r + 1, g.xs.index(to_x(a))][3][0].set("paraPrIDRef", L.para("LEFT", 1160))
+            flat(g, a, r + 1)
             for s in tags:
                 t0, t1 = tag_cell(s["bbox"][0])
                 fill, color = TAGS[s["text"].strip()]
                 g.put(t0, t1, r + 1, r + 2, [[(s["text"].strip(), 840, True, color)]], fill, line=950, fit=False)
-                tight(g, t0, r + 1)
+                flat(g, t0, r + 1, 0, 0)
     # result bands with a notch
     for (a, e), line in zip((left, right), results):
         g.put(a, e, body_end, body_end + 1, "▼", frame(BAND, left="soft", right="soft"), size=700,
@@ -172,7 +185,7 @@ arrows = ((219.6, 238.9), (331.6, 348.6), (443.5, 461.1))
 subtags = ((224.2, 295.3, 321.2, 331.6), (336.1, 416.9, 443.5, 443.5), (448.1, 523.8, 549.7, X1))
 xs = sorted({X0, 109.6} | {x for c in cols for x in c[:2]} | {x for s in strip for x in s}
             | {x for t in subtags for x in t})
-g = Grid("risk", xs, [150, 1430, 150, 2300, 780, 250, 1400, 250, 3670])
+g = Grid("risk", xs, [170, 1390, 170, 2300, 780, 250, 1400, 250, 3670])
 g.put(X0, 109.6, 0, 4, lines_in(60, 65, 409, 425), frame("#CCCCCC"), line=1330)
 g.put(X0, 109.6, 5, 9, lines_in(60, 75, 465, 480), frame("#CCCCCC"), line=1330)
 shades = ("#EDEDED", "#E4E4E4", "#DBDBDB", "#D2D2D2")
@@ -180,12 +193,16 @@ for k, ((a, n0, n1, e), shade) in enumerate(zip(strip, shades)):
     head = lines_in(n0 - 4, n1, 404, 408)[0]
     split = head["spans"][1]["bbox"][0]
     g.put(a, e, 0, 1, [], frame(shade, top="soft"))
+    flat(g, a, 0)
     if n0 > a:
         g.put(a, n0, 1, 2, [], frame(shade))
     g.put(n0, n1, 1, 2, [runs_of(head, x1=split)], OUTLINED, line=1000, fit=False)
     tight(g, n0, 1)
     g.put(n1, e, 1, 2, [strip_runs(runs_of(head, x0=split))], frame(shade), align="LEFT")
+    flat(g, n1, 1)
     g.put(a, e, 2, 3, [], frame(shade))
+    flat(g, a, 2)
+g.put(109.6, 111.9, 0, 9, [])
 for k, (a, e) in enumerate(arrows):
     g.put(a, e, 0, 3, "▶", frame(shades[k], top="soft"), size=800, color="#7F7F7F", fit=False)
 for k, (a, e, base) in enumerate(cols):
@@ -200,6 +217,7 @@ for a, t0, t1, e in subtags:
     split = [s for s in head["spans"] if "단계" in s["text"]][0]["bbox"][0] - 0.5
     g.put(a, e, 5, 6, [], frame("#EEEEEE", **hatch))
     g.put(a, t0, 6, 7, [strip_runs(runs_of(head, x1=split))], frame("#EEEEEE", **hatch), align="RIGHT")
+    flat(g, a, 6)
     g.put(t0, t1, 6, 7, [runs_of(head, WHITE, x0=split)], NEW, line=1000)
     if e > t1:
         g.put(t1, e, 6, 7, [], frame("#EEEEEE", **hatch))

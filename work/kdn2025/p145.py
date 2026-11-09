@@ -56,17 +56,18 @@ def tight(g, x0, r0, left=0, right=0):
 
 def step_label(g, rows, pill_row, label_row, fill, pill_y, label_y, color=INK):
     """Left Step column: graded gray block, outlined Step pill, bold label (text layer)."""
-    g.put(X0, 63.6, 0, rows, [], frame(fill))
-    g.put(98.2, LAB, 0, rows, [], frame(fill))
-    if pill_row:
-        g.put(63.6, 98.2, 0, pill_row, [], frame(fill))
-    g.put(63.6, 98.2, pill_row, pill_row + 1, [line1(68, 72, pill_y - 1, pill_y + 1)], PILL, line=1000)
-    tight(g, 63.6, pill_row)
-    g.put(63.6, 98.2, label_row, label_row + 1, [runs_of(line1(60, 65, label_y - 1, label_y + 1), color)],
-          frame(fill), line=1300)
-    tight(g, 63.6, label_row)
-    if label_row + 1 < rows:
-        g.put(63.6, 98.2, label_row + 1, rows, [], frame(fill))
+    for r in range(rows):
+        if r == pill_row:
+            g.put(X0, 63.6, r, r + 1, [], frame(fill))
+            g.put(63.6, 98.2, r, r + 1, [line1(68, 72, pill_y - 1, pill_y + 1)], PILL, line=1000)
+            tight(g, 63.6, r)
+            g.put(98.2, LAB, r, r + 1, [], frame(fill))
+        elif r == label_row:
+            g.put(X0, LAB, r, r + 1, [runs_of(line1(60, 65, label_y - 1, label_y + 1), color)], frame(fill),
+                  line=1300)
+            tight(g, X0, r)
+        else:
+            g.put(X0, LAB, r, r + 1, [], frame(fill))
 
 
 # ---------------------------------------------------------------------------
@@ -182,7 +183,7 @@ for a, t, u, e, x in boxes:
     g.put(a, t, 1, 2, [], frame(HEAD, left="mid"))
     g.put(t, u, 1, 2, [runs_of(line, x1=split)], TAG, line=1000, fit=False)
     tight(g, t, 1)
-    g.put(u, e, 1, 2, [strip_runs(runs_of(line, x0=split))], frame(HEAD, right="mid"), align="LEFT", line=1300)
+    g.put(u, e, 1, 2, [strip_runs(runs_of(line, x0=split))], frame(HEAD, right="mid"), align="LEFT", line=1280)
     g.put(a, e, 2, 6, lines_in(a + 3, a + 8, 450, 482), frame(top="soft", bottom="mid", left="mid", right="mid"),
           align="LEFT", line=1540)
 block(g, 427.1)
@@ -215,18 +216,18 @@ block(g, 623.9)
 
 cols = ((X0, 220.1, 59.7), (224.6, 399.1, 227.3), (403.6, X1, 406.3))
 xs = [X0, 220.1, 224.6, 237.1, 399.1, 403.6, 415.7, X1]
-g = Grid("happy", xs, [2020, 300, 1480, 1480, 1600, 700, 300, 1540, 1540, 300])
+g = Grid("happy", xs, [2020, 4860, 860, 3520])
 heads = ((X0, 220.1, "#EDEDED"), (237.1, 399.1, "#E3E3E3"), (415.7, X1, "#D8D8D8"))
 for k, (a, e, fill) in enumerate(heads):
     g.put(a, e, 0, 1, [line1(a + 3, e, 648, 651)], frame(fill), bold=True, line=1300)
     if k < 2:
         g.put(e, heads[k + 1][0], 0, 1, "▶", frame(fill), size=900, color="#8A8A8A", line=1000, fit=False)
 for k, (a, e, base) in enumerate(cols):
-    g.put(a, e, 1, 5, hang(lines_in(base - 1, base + 10, 668, 714), base), align="LEFT", line=1450)
-    g.put(a, e, 5, 6, "▼", size=700, color="#A0A0A0", line=700)
-    g.put(a, e, 6, 10, lines_in(base - 1, base + 2, 722, 754), frame("#E3E3E3"), align="LEFT", line=1540)
-g.put(220.1, 224.6, 1, 10, [])
-g.put(399.1, 403.6, 1, 10, [])
+    g.put(a, e, 1, 2, hang(lines_in(base - 1, base + 10, 668, 714), base), align="LEFT", line=1450)
+    g.put(a, e, 2, 3, "▼", size=700, color="#A0A0A0", line=700)
+    g.put(a, e, 3, 4, lines_in(base - 1, base + 2, 722, 754), frame("#E3E3E3"), align="LEFT", line=1540)
+g.put(220.1, 224.6, 1, 4, [])
+g.put(399.1, 403.6, 1, 4, [])
 block(g, 644.8)
 
 g = Grid("result", [X0, 111.7, X1], [3710])

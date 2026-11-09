@@ -153,12 +153,19 @@ block(g, 159.1)
 
 # 핵심전문가: three columns of [pill year] count
 COLS = ((110.5, 258.9, 155.6, 184.4), (258.9, 406.8, 299.0, 336.5), (406.8, X1, 446.8, 484.2))
-g = Grid("experts", [X0, LB] + sorted({x for c in COLS for x in c} | {X1}), [2500])
-label(g, 0, 1, 226)
+g = Grid("experts", [X0, LB] + sorted({x for c in COLS for x in c} | {X1}), [540, 1430, 530])
+label(g, 0, 3, 226)
 for k, (a, e, t0, t1) in enumerate(COLS):
-    edge = dict(top="soft", bottom="soft", left="soft" if k == 0 else None, right="soft")
-    edge = {k2: v for k2, v in edge.items() if v}
-    tagged(g, 0, a, e, line1(t0 + 2, t1, 224, 228), ((t0, t1),), edge=edge)
+    ln = line1(t0 + 2, t1, 224, 228)
+    g.put(a, t0, 0, 3, [], frame(top="soft", bottom="soft", **({"left": "soft"} if k == 0 else {})))
+    g.put(t0, t1, 0, 1, [], frame(top="soft"))
+    g.put(t0, t1, 1, 2, [runs_of(ln, x1=t1 - 3)], OUT_TAG, line=1000)
+    tight(g, t0, 1)
+    g.put(t0, t1, 2, 3, [], frame(bottom="soft"))
+    g.put(t1, e, 0, 1, [], frame(top="soft", right="soft"))
+    g.put(t1, e, 1, 2, [strip_runs(runs_of(ln, x0=t1 - 3))], frame(right="soft"), align="LEFT")
+    tight(g, t1, 1, 60, 100)
+    g.put(t1, e, 2, 3, [], frame(bottom="soft", right="soft"))
 block(g, 218.8)
 
 # 추진방향: three hatched boxes with dark number squares

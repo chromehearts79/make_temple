@@ -136,7 +136,7 @@ labels = (  # (tag A runs line, fill, color) per stacked row, tag B (line, fill,
     ([((64, 66, 411, 414), "#7F7F7F", WHITE)], ((103, 106, 411, 414), "#D9D9D9", INK)),
     ([((60, 62, 443, 446), "#D9D9D9", INK), ((62, 64, 458, 461), "#7F7F7F", WHITE)], ((107, 108, 451, 454), WHITE, INK)),
 )
-inline_tags = {(0, 0): "#404040", (0, 2): WHITE, (0, 3): WHITE, (2, 1): "#BFBFBF"}
+inline_tags = {(0, 0): "#404040", (0, 2): WHITE, (0, 3): WHITE, (2, 0): "#BFBFBF"}
 r = 1
 for k, ((edges, tag_row), (a_tags, b_tag)) in enumerate(zip(groups, labels)):
     n = len(edges) - 1
@@ -173,7 +173,7 @@ for k, ((edges, tag_row), (a_tags, b_tag)) in enumerate(zip(groups, labels)):
             rr = r + i
             edge = dict(bottom=bottom) if i == n - 1 else {}
             if ln["text"].startswith("∙"):
-                g.put(127.6, 136.5, rr, rr + 1, [runs_of(ln, x1=137.0)], frame(**edge), fit=False)
+                g.put(127.6, 136.5, rr, rr + 1, [runs_of(ln, x1=137.0)], frame(**edge), line=1200, fit=False)
                 tight(g, 127.6, rr, 280, 0)
                 fill = inline_tags.get((k, j))
                 if fill:

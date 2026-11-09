@@ -145,9 +145,9 @@ CHARTS = [(337.8, ["임신기 근로", "단축 사용자수"], "36%↑", "22명"
           (386.5, ["자녀돌봄휴가", "사 용 자 수"], "6%↑", "657명", "699명"),
           (435.0, ["육 아 휴 직", "사 용 자 수"], "11%↑", "102명", "113명"),
           (484.0, ["육 아 시 간", "사 용 자 수"], "40%↑", "138명", "193명")]
-SUB = (1150, 1150, 1050, 950)                            # label / '25 value, '24 value, tag + axis, years
+SUB = (1200, 1200, 1100, 1000)                          # label / '25 value, '24 value, tag + axis, years
 LEFT_ROWS = (333.2, 366.0, 412.5, 487.2, 561.5)
-ys = [314.5, *LEFT_ROWS, 527.0]
+ys = [314.5, *LEFT_ROWS, 529.0]
 for top, *_ in CHARTS:
     ys += [top + sum(SUB[:i]) / 100 for i in range(5)]
 R = Rows(ys)
@@ -175,7 +175,9 @@ box = dict(left="soft", right="soft")
 plot = "#EEEEEE"
 for top, names, rise, before, after in CHARTS:
     r0, r1, r2, r3, r4 = (R(top + sum(SUB[:i]) / 100) for i in range(5))
-    g.put(445.0, 484.4, r0, r2, [[(t, 850, False, INK)] for t in names], frame(top="soft", **box), line=950)
+    g.put(445.0, 484.4, r0, r2, [[(t, 800, False, INK)] for t in names], frame(top="soft", **box), line=950,
+          ratio=72, fit=False)
+    tight(g, 445.0, r0, 40, 40)
     g.put(445.0, 451.5, r2, r3, [], frame(left="soft"))
     g.put(451.5, 478.0, r2, r3, rise, TAG, size=850, bold=True, color=WHITE, line=900, fit=False)
     tight(g, 451.5, r2)
@@ -189,8 +191,9 @@ for top, names, rise, before, after in CHARTS:
     g.put(518.6, 552.7, r2, r3, [], frame(plot, bottom="mid"))
     g.put(484.4, 518.6, r3, r4, "’24년", frame(plot), size=800, line=790)
     g.put(518.6, 552.7, r3, r4, "’25년", frame(plot), size=800, bold=True, line=790)
-g.put(445.0, 552.7, R(527.0), R(561.5), hang(lines_in(444, 455, 529, 550), 445.2), frame(bottom="strong"),
+g.put(445.0, 552.7, R(529.0), R(561.5), hang(lines_in(444, 455, 529, 550), 445.2), frame(bottom="strong"),
       align="LEFT", line=1520)
+tight(g, 445.0, R(529.0), 60, 60)
 block(g, 314.5)
 
 # ---------------------------------------------------------------------------

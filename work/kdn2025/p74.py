@@ -31,7 +31,6 @@ L = Layout(top=3200)
 kit.setup(source, L)
 from kit import *  # noqa: E402,F401,F403  helpers and presets bound to this page
 
-DARK = "#5E5E5E"
 LABEL = frame("#EBEBEB", top="soft", hatch="#DDDDDD")
 LABEL2 = frame("#D9D9D9", top="mid", bottom="mid", left="mid")
 RESULT = frame("#6A6A6A", top="mid", bottom="mid", left="mid")

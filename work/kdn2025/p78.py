@@ -57,10 +57,6 @@ def tag(g, x0, x1, r0, r1, content, fill, ratio=88, **kw):
     g.items[key] = g.items[key][:7] + (dict(left=60, right=60),)
 
 
-def recolor(runs, color):
-    return [(t, s, b, color) for t, s, b, _ in runs]
-
-
 def section_band(name, num_line, title_line, top, label=None):
     """'2 | heading [sticker]': dark number cell, light gray title band, optional dark tag."""
     xs = [X0, 84.8, 438.0, 496.0, X1] if label else [X0, 84.8, X1]

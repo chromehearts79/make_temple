@@ -33,7 +33,6 @@ LABEL = frame("#EFEFEF", hatch="#E0E0E0")
 TAGBOX = frame(WHITE, top="soft", bottom="soft", left="soft", right="soft")
 TAGDARK = frame("#6E6E6E")
 TAGGRAY = frame("#C4C4C4")
-BAND = frame("#E4E4E4")
 SUB = frame("#E9E9E9")
 
 
@@ -50,10 +49,6 @@ def tag(g, x0, x1, r0, r1, content, fill, ratio=88, **kw):
     g.put(x0, x1, r0, r1, content, fill, fit=False, ratio=ratio, **kw)
     key = (r0, g.xs.index(to_x(x0)))
     g.items[key] = g.items[key][:7] + (dict(left=60, right=60),)
-
-
-def recolor(runs, color):
-    return [(t, s, b, color) for t, s, b, _ in runs]
 
 
 def joined(pieces, glyph="→"):

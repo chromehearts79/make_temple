@@ -125,7 +125,7 @@ xs = [X0, LX, CX0, 123.2]
 for (a, b, e), *_ in ENV:
     xs += [a, a + 1.7, b, e]
 xs = sorted(set(xs))
-g = Grid("env", xs, [2050, 550, 1250, 1250, 200])
+g = Grid("env", xs, [2050, 350, 1300, 1300, 300])
 label(g, 0, 5, ["환경변화"])
 for (a, b, e), head, rows in ENV:
     g.put(a, e, 0, 1, head, frame(top="strong", bottom="mid"), size=1150)
@@ -133,7 +133,7 @@ for (a, b, e), head, rows in ENV:
     for k, (tag, text) in enumerate(rows):
         g.put(a, a + 1.7, 2 + k, 3 + k, [], frame("#EFEFEF"))
         g.put(a + 1.7, b, 2 + k, 3 + k, tag, frame("#CBCBCB"), size=950, line=1100, fit=False)
-        g.put(b, e, 2 + k, 3 + k, [m(text)], frame("#EFEFEF"), align="LEFT", line=1250)
+        g.put(b, e, 2 + k, 3 + k, [m(text)], frame("#EFEFEF"), align="LEFT", line=1140)
     g.put(a, e, 4, 5, [], frame("#EFEFEF"))
 block(g, 292.5)
 
@@ -172,7 +172,7 @@ for k, ((a, e), (tag, head, sub, items)) in enumerate(zip(COLS3, STRAT)):
     g.put(a, a + 33.3, 0, 1, tag, frame("#7F7F7F", top="strong"), size=1000, bold=True, color=WHITE, fit=False)
     g.put(a + 33.3, e, 0, 1, head, frame("#D4D4D4", top="strong"), size=1200, bold=True)
     g.put(a, e, 1, 2, sub, frame("#E5E5E5", left=side), size=1150)
-    g.put(a, e, 2, 3, [m(t, 1100) for t in items], frame(left=side), align="LEFT", line=1330)
+    g.put(a, e, 2, 3, [m(t, 1100) for t in items], frame(left=side), align="LEFT", line=1310)
 block(g, 413.2)
 
 # 성장 로드맵: three donut charts -> value cells (label blocks around the year total).
@@ -238,8 +238,8 @@ for (a, b, c, e), (pill, value, head, items) in zip(TARGET_X, TARGETS):
     g.put(a, e, 8, 9, items, frame(bottom="dot", left="dot", right="dot"), align="LEFT", line=1400)
 block(g, 594.5)
 
-g = Grid("note", [X0, X1], [1100])
+g = Grid("note", [X0, X1], [1160])
 g.put(X0, X1, 0, 1, [line1(55, 60, 790, 795)], align="LEFT", line=1000)
 block(g, 790.8)
 
-kit.finish(target, end=802.0)
+kit.finish(target, end=802.4)

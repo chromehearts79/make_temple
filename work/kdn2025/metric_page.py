@@ -77,8 +77,10 @@ def cell_runs(x0, x1, y0, y1, color=INK):
 class Table(Grid):
     """Grid whose rows are the PDF's horizontal rules (pt); cells take the text found inside them."""
 
-    def __init__(self, name, cols, rules):
-        super().__init__(name, cols, [int(round((b - a) * 100)) for a, b in zip(rules, rules[1:])])
+    def __init__(self, name, cols, rules, extra=()):
+        """extra: further column edges (pt) that only some cells use, e.g. split row labels."""
+        super().__init__(name, sorted(set(cols) | set(extra)),
+                         [int(round((b - a) * 100)) for a, b in zip(rules, rules[1:])])
         self.cols, self.rules = cols, rules
 
     def text(self, x0, x1, r0, r1, color=INK):
@@ -109,6 +111,32 @@ class Table(Grid):
             self.head(a, e, r0, r1, **kw)
 
 
+def split_scores(year, sub, rules):
+    """1 실적 개요 table whose 2025 row splits into 실제 / 보정 (영업이익률, 부채비율 pages).
+    year / sub: x of the 2025 | 실제 and 실제 | 평가산식 edges; rules: header top, header bottom,
+    실제 bottom, 보정 bottom, 2024 bottom, 2023 bottom. 목표치 and 가중치 are shared by 실제 / 보정,
+    평가산식 and 평가방법 merged over all years."""
+    cols = [X0, year, sub, 260.8, 311.8, 382.7, 433.7, 484.7, 518.7, X1]
+    t = Table("scores", cols, rules)
+    t.head(X0, sub)
+    t.head_row(cols[2:])
+    t.body(X0, year, 1, 3, fill=LIGHT)                                  # 2025
+    for r in (1, 2):
+        t.body(year, sub, r, fill=LIGHT, right=None)                      # 실제 / 보정
+        for a, e in ((382.7, 433.7), (433.7, 484.7), (518.7, X1)):
+            t.body(a, e, r)
+    t.body(311.8, 382.7, 1, 3, align="LEFT", line=1540)                 # 최고 / 최저
+    t.body(484.7, 518.7, 1, 3)                                          # 가중치
+    t.body(sub, 260.8, 1, 5)                                            # 평가산식
+    t.body(260.8, 311.8, 1, 5, line=1540)                               # 목표부여 (편차)
+    for r in (3, 4):
+        t.body(X0, sub, r, fill=LIGHT, right=None)
+        t.body(311.8, 382.7, r, align="LEFT", line=1540)
+        for a, e in zip(cols[5:], cols[6:]):
+            t.body(a, e, r)
+    return t
+
+
 def label_chars(x0, x1, y0, y1):
     """(char, x0, x1) of the PDF glyphs in a label cell, left to right."""
     out = []
@@ -121,19 +149,29 @@ def label_chars(x0, x1, y0, y1):
     return sorted(out, key=lambda c: c[1])
 
 
-def split_label(t, x1, r, fill=LIGHT, bottom=None, word_gap=False):
-    """Row label such as '매   출   액(A)': the letter-spaced words as a distributed cell (배분 정렬)
-    over the PDF extent, the '(A)' suffix right-aligned in its own cell at the PDF's end."""
-    chars = label_chars(X0, x1, t.rules[r], t.rules[r + 1])
+def label_parts(x1, y0, y1):
+    """Row label such as '매   출   액(A)' -> (words, suffix, first x, split x, end x).
+    The PDF letter-spaces with real blanks; a double blank marks a word gap ('일반관리비 관리')."""
+    chars = label_chars(X0, x1, y0, y1)
     cut = next(i for i, c in enumerate(chars) if c[0] == "(")
     words = "".join(c[0] for c in chars[:cut]).strip()
-    # letter spacing in the PDF is real spaces; a double space marks a word gap
-    words = words.replace("  ", "\0").replace(" ", "").replace("\0", " " if word_gap else "")
+    words = words.replace("  ", "\0").replace(" ", "").replace("\0", " ")
     suffix = "".join(c[0] for c in chars[cut:]).strip()
     first, paren, end = chars[0][1], chars[cut][1], chars[-1][2]
-    split = round(paren - 0.15 * (end - paren), 1)
+    return words, suffix, first, round(paren - 0.15 * (end - paren), 1), end
+
+
+def split_label(t, x1, r, fill=LIGHT, bottom=None):
+    """Letter-spaced words as a distributed cell (배분 정렬) over the PDF extent, the '(A)' suffix
+    right-aligned in its own cell ending where the PDF's does."""
+    words, suffix, first, split, end = label_parts(x1, t.rules[r], t.rules[r + 1])
     bottom = bottom or ("mid" if r + 1 == len(t.hs) else "soft")
-    t.put(X0, split, r, r + 1, words, frame(fill, bottom=bottom), align="DISTRIBUTE", size=1090, fit=False)
+    # a tightly printed label ('일반관리비 관리') may need a narrower 장평 to stay on one line
+    inner = (split - first) * 0.96
+    need = kit.text_width([(words, 1090, False, INK)], 90)
+    ratio = 90 if need <= inner else int(90 * inner / need)
+    t.put(X0, split, r, r + 1, words, frame(fill, bottom=bottom), align="DISTRIBUTE", size=1090, ratio=ratio,
+          fit=False)
     margin(t, X0, r, left=(first - X0) * 100, right=0)
     t.put(split, x1, r, r + 1, suffix, frame(fill, bottom=bottom, right="soft"), align="RIGHT", size=1090,
           fit=False)
@@ -147,8 +185,9 @@ def data_table(cols, rules, mid=None):
     n25 = 2 if split else 1
     first25 = cols[-1 - n25]
     rows = [rules[0], mid, *rules[1:]] if split else rules
-    t = Table("data", cols, rows)
     nh = 2 if split else 1
+    cuts = [label_parts(cols[1], a, b)[3] for a, b in zip(rows[nh:], rows[nh + 1:])]
+    t = Table("data", cols, rows, cuts)
     for a, e in zip(cols, cols[1:]):
         if a >= first25:
             continue
@@ -310,14 +349,18 @@ def notes(y0, y1):
     bounds += [(a["bbox"][3] + b["bbox"][1]) / 2 for a, b in zip(lines, lines[1:])]
     bounds.append(lines[-1]["bbox"][3] + 0.5)
     g = Grid("notes", [X0, 93.7, X1], [int(round((b - a) * 100)) for a, b in zip(bounds, bounds[1:])])
+    left = 96.4 - 93.7 - 0.5
     for r, line in enumerate(lines):
+        # some PDF lines run past the body edge (to x 558); narrow 장평 so each stays on one line
+        start = 96.4 if line["bbox"][0] > 80 else next(s["bbox"][0] for s in line["spans"] if s["bbox"][0] > 92)
+        ratio = min(90, int(86.5 * (X1 - 93.7 - left) / (line["bbox"][2] - start) * 0.97))
         if line["bbox"][0] < 80:            # chip + text
             g.put(X0, 93.7, r, r + 1, [runs_of(line, x1=92.0)], frame(CHIP), line=1000)
             margin(g, X0, r, left=100, right=100, top=40, bottom=40)
-            g.put(93.7, X1, r, r + 1, [runs_of(line, x0=92.0)], align="LEFT", line=1150, fit=False)
+            g.put(93.7, X1, r, r + 1, [runs_of(line, x0=92.0)], align="LEFT", line=1150, ratio=ratio, fit=False)
         else:
-            g.put(93.7, X1, r, r + 1, [line], align="LEFT", line=1150, fit=False)
-        margin(g, 93.7, r, left=(96.4 - 93.7) * 100 - 50, right=0, top=0, bottom=0)
+            g.put(93.7, X1, r, r + 1, [line], align="LEFT", line=1150, ratio=ratio, fit=False)
+        margin(g, 93.7, r, left=left * 100, right=0, top=0, bottom=0)
     block(g, bounds[0])
 
 

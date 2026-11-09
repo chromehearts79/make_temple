@@ -126,12 +126,12 @@ g.put(136.5, 329.5, 0, 1, "공통 역량 강화 교육", head, size=1150, bold=T
 g.put(341.0, 360.5, 0, 1, "2", num, size=1400, color=WHITE, line=1500, fit=False)
 g.put(360.5, X1, 0, 1, "노 - 사 계층별 차별화 교육", head, size=1150, bold=True, align="LEFT", line=1350)
 g.put(329.5, 335.5, 0, 5, [], frame(right="dot"))
-g.put(IN, 329.5, 2, 3, [dot("노동조합법 개정", ("(노란봉투법)", SMALL), " 관련 이슈 반영")], align="LEFT", line=1350)
-g.put(IN, 293.0, 3, 4, [dot("새정부 노사관계 강화 정책 기조 반영")], align="LEFT", line=1350)
+g.put(IN, 329.5, 2, 3, [dot("노동조합법 개정", ("(노란봉투법)", SMALL), " 관련 이슈 반영")], align="LEFT", line=1270)
+g.put(IN, 293.0, 3, 4, [dot("새정부 노사관계 강화 정책 기조 반영")], align="LEFT", line=1270)
 g.put(293.0, 316.0, 3, 4, "국정94", frame("#D2D2D2"), size=760, line=900, fit=False)
 tight(g, 293.0, 3)
-g.put(341.0, X1, 2, 3, [dot("교육 대상, 직급, 직책에 따른 맞춤형 교육 제공")], align="LEFT", line=1350)
-g.put(341.0, X1, 3, 4, [dot("선우재, 경북대 등 노사관계 전문 위탁기관 확대")], align="LEFT", line=1350)
+g.put(341.0, X1, 2, 3, [dot("교육 대상, 직급, 직책에 따른 맞춤형 교육 제공")], align="LEFT", line=1270)
+g.put(341.0, X1, 3, 4, [dot("선우재, 경북대 등 노사관계 전문 위탁기관 확대")], align="LEFT", line=1270)
 g.put(IN, 329.5, 4, 5, [], frame(bottom="mid"))
 g.put(341.0, X1, 4, 5, [], frame(bottom="mid"))
 block(g, 210.6)
@@ -149,8 +149,8 @@ stages = ((0, IN, 141.0, "P", "#A8A8A8", 141.0, 334.0, "노사관계 교육 계�
           (5, IN, 141.0, "A", "#555555", 141.0, 334.0, "'26년 신규 교육과정 계획 수립"),
           (5, 334.0, 362.0, "C", "#727272", 362.0, X1, "교육 실적 점검 및 평가"))
 for r, ta, te, tag, fill, ba, be, title in stages:
-    g.put(ta, te, r, r + 1, tag, frame(fill), size=1150, color=WHITE, line=1300)
-    g.put(ba, be, r, r + 1, title, band, size=BODY, bold=True, align="LEFT", line=1300)
+    g.put(ta, te, r, r + 1, tag, frame(fill), size=1150, color=WHITE, line=1290)
+    g.put(ba, be, r, r + 1, title, band, size=BODY, bold=True, align="LEFT", line=1290)
 lines = ((2, 141.0, "방법", "’24년 교육 피드백, 대내외 환경 요소 접목"),
          (3, 141.0, "구성", "노-사, 직급에 따른 맞춤 교육 및 공통 교육"),
          (2, 362.0, "회사", "리더십, 분쟁해결방안 등 관리자 역량"),
@@ -170,7 +170,8 @@ g.put(543.0, X1, 1, 5, "▼", size=900, color=ARROW, line=1000)        # D -> C
 # 역량진단 note: dotted box, 기존 (outlined) ▶ 개선 (dark) tags.
 note = dict(left="dot", right="dot")
 g.put(141.0, 530.0, 10, 11, [], frame(top="dot", **note))
-g.put(141.0, 184.0, 11, 13, [[S("*역량진단", 1050)]], frame(left="dot"), align="LEFT", line=1240)
+g.put(141.0, 184.0, 11, 12, [[S("*역량진단", 1050)]], frame(left="dot"), align="LEFT", line=1240)
+g.put(141.0, 184.0, 12, 13, [], frame(left="dot"))
 tight(g, 141.0, 11, 250, 0)
 g.put(184.0, 209.0, 11, 12, "기존", BOXED, size=1030, line=1150, fit=False)
 tight(g, 184.0, 11)

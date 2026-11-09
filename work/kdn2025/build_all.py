@@ -25,7 +25,10 @@ SHARED = {**{n: WORK / "blank.py" for n in (2, 4, 6, 8, 10, 46)},
           45: WORK / "p09.py", 99: WORK / "p09.py",       # chapter covers
           44: WORK / "p32.py", 56: WORK / "p32.py", 66: WORK / "p32.py", 98: WORK / "p32.py",  # logo
           49: SKILL / "kdn_p49.py", 50: SKILL / "kdn_p50.py", 51: SKILL / "kdn_p51.py",
-          100: WORK / "blank.py",
+          100: WORK / "blank.py", 120: WORK / "blank.py",
+          119: WORK / "p09.py", 118: WORK / "p32.py", 136: WORK / "p32.py",
+          **{n: WORK / "p11.py" for n in (101, 137)}, 121: WORK / "p57.py", 147: WORK / "p57.py",
+          **{n: WORK / "p12.py" for n in (102, 122, 138, 148)},
           **{n: WORK / "p11.py" for n in (67, 75, 85)},   # 지표 정의 (57 has its own p57.py)
           **{n: WORK / "p12.py" for n in (58, 68, 76, 86)}}   # 세부목차
 

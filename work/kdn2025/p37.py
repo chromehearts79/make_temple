@@ -39,6 +39,20 @@ def run(text, size=1090, bold=False, color=INK):
     return (text, size, bold, color)
 
 
+def bullets(found):
+    """Bullet lines as they are; '- ' lines and continuation lines indented like the source
+    (leading blanks are stripped from PDF lines, so the indent is rebuilt from the x offset)."""
+    xb = min(l["bbox"][0] for l in found)
+    out = []
+    for l in found:
+        if l["text"].startswith("∙"):
+            out.append(l)
+            continue
+        n = 2 if l["text"].startswith("-") else max(2, round((l["bbox"][0] - xb) / 3.2))
+        out.append([run(" " * n)] + runs_of(l))
+    return out
+
+
 def section_band(name, y, top, split=85.0):
     """'2 | title' band: dark number box and a light gray title strip (image in the PDF)."""
     g = Grid(name, [X0, split, X1], [2300])
@@ -242,7 +256,7 @@ for k, (a, e) in enumerate(cols):
           bold=True)
     g.put(a, e, 1, 2, [], frame(left=soft, right=soft))
     g.put(a, e, 2, 3, [line1(a + 2, e, 680, 684)], frame("#ECECEC", left=soft, right=soft, hatch="#D6D6D6"))
-g.put(X0, 221.3, 3, 8, [lines_in(60, 65, 705, 720)[0]] + [[run("  ")] + runs_of(l) for l in lines_in(60, 80, 720, 790)],
+g.put(X0, 221.3, 3, 8, bullets(lines_in(60, 80, 705, 790)),
       frame(left=soft, right=soft, bottom=soft), align="LEFT", line=1760)
 g.put(391.1, X1, 3, 8, lines_in(395, 400, 705, 790), frame(left=soft, right=soft, bottom=soft), align="LEFT", line=1760)
 quote = frame("#EFEFEF", top=soft, bottom=soft, left=soft, right=soft)

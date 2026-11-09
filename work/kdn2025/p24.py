@@ -171,7 +171,7 @@ for a, t, e, line, x0, cut, x1 in pieces:
     tag_runs = runs_of(line, x0=x0, x1=cut)
     fill, ink = tag_styles[tag_runs[0][0].strip()]
     g.put(a, t, 6, 7, [runs_of(line, ink, x0=x0, x1=cut)],
-          frame(fill, top="soft", bottom="soft", right="soft", left="soft"))
+          frame(fill, top="soft", bottom="soft", right="soft", left="soft"), ratio=78)
     g.put(t, e, 6, 7, [runs_of(line, x0=cut, x1=x1)], frame(right="soft" if e == X1 else None), align="LEFT")
 g.put(110.5, X1, 7, 8, [line1(127, 128, 538, 540)], frame(bottom="soft", **side))
 block(g, 415.1)

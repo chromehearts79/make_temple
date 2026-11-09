@@ -38,8 +38,17 @@ def run(text, size=1090, bold=False, color=INK):
 
 
 def bullets(found):
-    """Bullet lines as they are; dash and continuation lines indented under the bullet text."""
-    return [l if l["text"].startswith("∙") else [run("  ")] + runs_of(l) for l in found]
+    """Bullet lines as they are; '- ' lines and continuation lines indented like the source
+    (leading blanks are stripped from PDF lines, so the indent is rebuilt from the x offset)."""
+    xb = min(l["bbox"][0] for l in found)
+    out = []
+    for l in found:
+        if l["text"].startswith("∙"):
+            out.append(l)
+            continue
+        n = 2 if l["text"].startswith("-") else max(2, round((l["bbox"][0] - xb) / 3.2))
+        out.append([run(" " * n)] + runs_of(l))
+    return out
 
 
 def section_band(name, y, top, split=85.0):

@@ -132,7 +132,7 @@ for r in range(1, len(hs)):
 for first, last in groups:
     labels = lines_in(60, 120, rules[first], rules[last + 1])
     g.put(X0, 121.9, first, last + 1, labels, frame(LIGHT, bottom="soft"), align="DISTRIBUTE", line=1430)
-    pad(g, X0, first, 63.7 - X0, 121.9 - 114.9)
+    pad(g, X0, first, 4.0, 4.0)        # PDF extent 63.7-114.9; a little looser so 균등한 기회 stays on one line
     item = g.items[first, 0]
     for k, l in enumerate(labels):       # a lone '및' between two distributed lines stays centred
         if len(l["text"]) == 1:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""storyline.py 회귀 테스트: KDN 예시는 오류 0건·경고 8건, 일부러 망가뜨린 사본은 해당 규칙이 걸린다.
+"""storyline.py 회귀 테스트: KDN 예시 4개는 정해진 건수, 일부러 망가뜨린 사본은 해당 규칙이 걸린다.
 
 usage: python3 scripts/test_storyline.py
 """
@@ -16,6 +16,9 @@ import yaml
 HERE = Path(__file__).resolve().parent
 SCRIPT = HERE / "storyline.py"
 EXAMPLE = HERE.parent / "examples/kdn2025-jobs.yaml"
+# 원문을 옮긴 예시의 기대 결과. 경고는 원문 자체의 빈틈이며 references/kdn2025-*.md 11절에 풀어 두었다.
+EXAMPLES = {"jobs": "오류 0건, 경고 8건", "eco": "오류 0건, 경고 5건",
+            "startup": "오류 0건, 경고 8건", "coop": "오류 0건, 경고 13건"}
 TEMPLATE = HERE.parent / "assets/storyline-template.yaml"
 
 
@@ -31,6 +34,11 @@ def run_data(data):
         return run(f.name)
     finally:
         os.unlink(f.name)
+
+
+def hit(needle, out):
+    """'A|B'의 조각이 모두 한 줄에 있는 점검 결과가 있는가."""
+    return any(all(p in line for p in needle.split("|")) for line in out.splitlines())
 
 
 def mutations(base):
@@ -62,13 +70,37 @@ def mutations(base):
     yield "왜(문제) 없음", m(no_why), "왜(문제·배경·현황)가 없다"
     yield "Ⅱ표 빈 칸", m(lambda d: ev(d, 2)["요약"].update(올해=[])), "‘올해’ 칸이 비었다"
 
+    # 수치는 단위까지 맞아야 한다: '사례9'의 9나 '9배'는 Ⅰ표의 '9건'을 채우지 못한다
+    def unit_mismatch(d):
+        d["지적사항"][0]["성과"] = ["혁신제품 지정 9건"]
+        ev(d, 0)["과제"][1]["장면"][1]["결과"].append("사례9 소개, 지원자 9배 증가")
+    yield "단위 다른 수치", m(unit_mismatch), "수치 9건가"
+
+    # 장면 끝의 주요성과 상자('장면: 기호')는 그 장면의 결과다
+    def scene_box(d):
+        s = ev(d, 0)["과제"][1]["장면"][1]
+        ev(d, 0)["주요성과"].insert(0, {"쪽": 30, "과제": [2], "장면": "나", "내용": s.pop("결과")})
+    yield "장면 상자가 결과", m(scene_box), "!1-2-나|결과이 없다"
+    yield "없는 장면 상자", m(lambda d: ev(d, 0)["주요성과"][0].update(장면="라")), "없는 장면 라"
+
+    # 실행 과제가 머리에 설계 블록(배경)을 달고 열면 여는 과제로 본다
+    def design_block(d):
+        swap(d)
+        ev(d, 3)["과제"][0]["설계"] = {"배경": ["채용·육성·보직 진단"]}
+    yield "설계 블록으로 열기", m(design_block), "!4-1|평가내용의 첫 과제"
+
+    # 장면에 따로 적은 쪽은 과제가 걸친 쪽으로 친다
+    yield "장면 쪽", m(lambda d: (ev(d, 0)["과제"][1]["장면"][1].update(쪽=31),
+                                d["지적사항"][0].update(참고쪽=31))), "!J1|참고쪽 31이"
+
 
 def main():
     failures = 0
-    code, out = run(EXAMPLE)
-    ok = code == 0 and "오류 0건, 경고 8건" in out
-    failures += not ok
-    print(f"{'PASS' if ok else 'FAIL'}  KDN 예시: {out.strip().splitlines()[-1]}")
+    for name, expected in EXAMPLES.items():
+        code, out = run(HERE.parent / f"examples/kdn2025-{name}.yaml")
+        ok = code == 0 and expected in out
+        failures += not ok
+        print(f"{'PASS' if ok else 'FAIL'}  KDN {name} 예시: {out.strip().splitlines()[-1]}")
     code, out = run(TEMPLATE)
     ok = code == 0 and "오류 0건, 경고 0건" in out
     failures += not ok
@@ -76,7 +108,7 @@ def main():
     base = yaml.safe_load(EXAMPLE.read_text(encoding="utf-8"))
     for name, data, needle in mutations(base):
         code, out = run_data(data)
-        ok = needle in out
+        ok = not hit(needle[1:], out) if needle.startswith("!") else needle in out   # '!'는 걸리지 않아야 함
         failures += not ok
         print(f"{'PASS' if ok else 'FAIL'}  {name}")
     sys.exit(1 if failures else 0)

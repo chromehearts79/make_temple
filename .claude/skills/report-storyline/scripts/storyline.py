@@ -21,10 +21,17 @@ TEXT_KEYS = ("제목", "이름", "문제", "해결", "결과", "주석", "배경
 ENDINGS = ("고도화", "달성", "창출", "선도", "수립", "조성", "마련", "확산", "극대화", "구축", "정착", "강화",
            "추진", "운영", "해소", "실현", "제고", "확대", "개선", "정비", "확립", "도입", "혁신", "완료", "기여",
            "확보", "전환", "정립", "내실화", "체계화", "선정", "수상", "지원", "예방", "근절", "향상", "절감",
-           "감축", "활성화", "증대", "이행", "차단", "대응", "실천", "완비", "보장")
+           "감축", "활성화", "증대", "이행", "차단", "대응", "실천", "완비", "보장", "해결", "구현", "견인",
+           "제공", "진출", "확장", "육성", "개방")
 TITLE_MAX = 50          # 세부목차 한 줄(쪽 번호 포함)에 들어가는 대략의 글자 수
 FEEDBACK_BADGE = "지적사항 개선"
 NUM = re.compile(r"(?<![’'\d.,])\d[\d,]*(?:\.\d+)?")
+UNITS = ("tCO2eq", "%p", "%", "백만원", "천원", "만원", "억원", "조원", "원", "개社", "개사", "社", "개소", "가구", "세대",
+         "시간", "등급", "배", "명", "건", "개", "회", "곳", "점", "위", "차", "호", "종", "팀", "권", "대", "단계",
+         "만", "천", "억", "년", "일", "주")
+UNIT = re.compile(r"\s?(" + "|".join(re.escape(u) for u in UNITS) + ")")
+LETTER = re.compile(r"[가-힣A-Za-z]")
+SAME_UNIT = {"개사": "개社", "社": "개社", "개소": "곳"}     # 같은 뜻의 단위 표기
 
 
 # ───────────────────────────── 읽기와 탐색
@@ -65,13 +72,27 @@ def texts(node, keys=TEXT_KEYS):
 
 
 def numbers(text):
-    """비교용 수치. ’24년 같은 연도 표기와 4월·12월 같은 날짜는 뺀다."""
+    """비교용 수치 {(값, 단위)}. ’24년 같은 연도 표기, 4월·12월 같은 날짜, 사례2·Step1 같은 이름 속 숫자는 뺀다."""
     found = set()
     for m in NUM.finditer(text):
         if text[m.end():m.end() + 1] == "월":
             continue
-        found.add(m.group().rstrip(",").replace(",", ""))
+        unit = UNIT.match(text, m.end())
+        unit = SAME_UNIT.get(unit.group(1), unit.group(1)) if unit else ""
+        if not unit and m.start() and LETTER.match(text[m.start() - 1]):
+            continue
+        found.add((m.group().rstrip(",").replace(",", ""), unit))
     return found
+
+
+def missing_numbers(source, scope):
+    """source의 수치 가운데 scope에 같은 값·같은 단위로 없는 것. 한쪽에 단위가 없으면 값만 맞아도 된다."""
+    have = numbers(scope)
+    out = []
+    for value, unit in numbers(source):
+        if not any(v == value and (u == unit or not u or not unit) for v, u in have):
+            out.append(value + unit)
+    return sorted(set(out), key=lambda x: float(NUM.match(x).group().replace(",", "")))
 
 
 def scenes(task):
@@ -105,6 +126,8 @@ def role(node, default="실행"):
 def designs(data):
     """(설계 노드, 위치) — 과제와 장면에 달린 설계 블록 모두."""
     for e in data["평가내용"]:
+        if e.get("서두"):
+            yield e["서두"], f"평가내용{e['번호']}"
         for t in as_list(e.get("과제")):
             if t.get("설계"):
                 yield t["설계"], ref_of(e, t)
@@ -129,6 +152,26 @@ def badges(node):
 
 def boxes_for(e, t):
     return [b for b in as_list(e.get("주요성과")) if t["번호"] in as_list(b.get("과제"))]
+
+
+def task_pages(t):
+    """과제가 걸친 쪽: 과제 쪽과 장면에 따로 적은 쪽."""
+    return {p for p in [t.get("쪽")] + [s.get("쪽") for s in scenes(t)] if p is not None}
+
+
+def scene_boxes(e, t, s):
+    """장면 하나를 맺는 주요성과 상자(상자에 '장면: 기호'를 적은 경우)."""
+    return [b for b in boxes_for(e, t) if s.get("기호") and b.get("장면") == s.get("기호")]
+
+
+def opens(e, first):
+    """평가내용을 여는 설계·환류가 있는가: 평가내용 서두, 설계 과제, 설계 블록을 단 첫 과제, 설계·환류 첫 장면."""
+    if e.get("서두") or role(first) == "설계":
+        return True
+    d = first.get("설계") or {}
+    if d.get("배경") or d.get("축"):
+        return True
+    return bool(scenes(first)) and role(scenes(first)[0]) in ("설계", "환류")
 
 
 # ───────────────────────────── 점검
@@ -169,7 +212,10 @@ def check(data, rep):
             elif page < last_page:
                 rep.warn(ref_of(e, t), f"쪽 {page}이 앞 과제 쪽 {last_page}보다 앞선다")
             else:
-                last_page = page
+                last_page = max(task_pages(t))
+                for s in scenes(t):
+                    if s.get("쪽") is not None and s["쪽"] < page:
+                        rep.warn(ref_of(e, t, s), f"장면 쪽 {s['쪽']}이 과제 쪽 {page}보다 앞선다")
 
     # R1 편람 문구 분해 → 과제 매핑
     for e in data["평가내용"]:
@@ -194,8 +240,7 @@ def check(data, rep):
             rep.error(f"평가내용{e['번호']}", "과제가 없다")
             continue
         first = ts[0]
-        opener = role(first) == "설계" or (scenes(first) and role(scenes(first)[0]) in ("설계", "환류"))
-        if not opener:
+        if not opens(e, first):
             rep.warn(ref_of(e, first), "평가내용의 첫 과제(또는 첫 장면)가 설계·환류가 아니다 — 왜·무엇을 먼저 세운다")
 
     # R3 복선과 회수: 설계 축 ↔ 실행 과제
@@ -261,6 +306,8 @@ def check(data, rep):
             where = ref_of(e, t, s if s is not t else None)
             parts = [s] + strands(s)
             has = {b: any(p.get(b) for p in parts) for b in ("문제", "해결", "결과")}
+            if s is not t and scene_boxes(e, t, s):
+                has["결과"] = True
             if s.get("설계", {}).get("배경"):
                 has["문제"] = True
             if not has["문제"]:
@@ -284,8 +331,11 @@ def check(data, rep):
                     rep.error(f"평가내용{e['번호']}", f"주요성과(p.{b.get('쪽')})가 없는 과제 {n}을 가리킨다")
             if not any(numbers(x) for x in as_list(b.get("내용"))):
                 rep.warn(f"평가내용{e['번호']}", f"주요성과(p.{b.get('쪽')})에 수치가 없다")
-            if covered and covered[-1] in ts and ts[covered[-1]].get("쪽") != b.get("쪽"):
-                rep.warn(f"평가내용{e['번호']}", f"주요성과 쪽 {b.get('쪽')}이 마지막 과제 쪽과 다르다")
+            if b.get("장면") and covered and covered[-1] in ts and \
+                    b["장면"] not in [s.get("기호") for s in scenes(ts[covered[-1]])]:
+                rep.error(f"평가내용{e['번호']}", f"주요성과(p.{b.get('쪽')})가 과제 {covered[-1]}에 없는 장면 {b['장면']}을 가리킨다")
+            if covered and covered[-1] in ts and b.get("쪽") not in task_pages(ts[covered[-1]]):
+                rep.warn(f"평가내용{e['번호']}", f"주요성과 쪽 {b.get('쪽')}이 마지막 과제가 걸친 쪽과 다르다")
         for t in ts.values():
             if role(t) == "실행" and not boxes_for(e, t):
                 rep.warn(ref_of(e, t), "이 과제를 맺는 주요성과 상자가 없다")
@@ -311,13 +361,14 @@ def check(data, rep):
                 rep.error(where, f"회수 위치 {r}가 평가내용{j.get('평가내용')}에 있지 않다")
             if FEEDBACK_BADGE not in badges(hit["node"]) + as_list(hit["t"].get("배지")):
                 rep.warn(where, f"{r}에 「{FEEDBACK_BADGE}」 배지가 없다")
-            pages.add(hit["t"].get("쪽"))
+            pages |= task_pages(hit["t"]) if hit["kind"] == "과제" else \
+                {hit["node"].get("쪽") or hit["t"].get("쪽")}
             scope += texts(hit["node"])
             for b in boxes_for(hit["e"], hit["t"]):
                 scope += as_list(b.get("내용"))
         if j.get("참고쪽") not in pages:
             rep.warn(where, f"참고쪽 {j.get('참고쪽')}이 회수 과제 쪽 {sorted(p for p in pages if p)}과 다르다")
-        missing = sorted(numbers(" ".join(as_list(j.get("성과")))) - numbers(" ".join(scope)), key=float)
+        missing = missing_numbers(" ".join(as_list(j.get("성과"))), " ".join(scope))
         if missing:
             rep.warn(where, f"Ⅰ표 성과의 수치 {', '.join(missing)}가 참고쪽 본문·주요성과에 그대로 보이지 않는다")
     for ref, hit in nodes.items():
@@ -333,8 +384,8 @@ def check(data, rep):
         for col in ("이전", "올해", "개선"):
             if not as_list(summary.get(col)):
                 rep.warn(f"평가내용{e['번호']}", f"Ⅱ표 ‘{col}’ 칸이 비었다")
-        body = " ".join(texts(e.get("과제")) + [x for b in as_list(e.get("주요성과")) for x in as_list(b.get("내용"))])
-        missing = sorted(numbers(" ".join(as_list(summary.get("개선")))) - numbers(body), key=float)
+        body = " ".join(texts(e.get("과제")) + texts(e.get("서두")) + [x for b in as_list(e.get("주요성과")) for x in as_list(b.get("내용"))])
+        missing = missing_numbers(" ".join(as_list(summary.get("개선"))), body)
         if missing:
             rep.warn(f"평가내용{e['번호']}", f"Ⅱ표 개선성과의 수치 {', '.join(missing)}가 본문에 그대로 보이지 않는다")
 
@@ -351,6 +402,11 @@ def check(data, rep):
 
 # ───────────────────────────── 세부목차 대조
 
+def toc_key(text):
+    """세부목차 대조용: 공백, 가운뎃점(·･‧∙), PDF 사용자 정의 문자(U+E000~U+F8FF)를 지운다."""
+    return re.sub(r"[\s·･‧∙\ue000-\uf8ff]+", "", text)
+
+
 def toc_check(data, pdf, page, rep):
     import pymupdf
     doc = pymupdf.open(pdf)
@@ -360,22 +416,22 @@ def toc_check(data, pdf, page, rep):
             text = "".join(s["text"] for s in line["spans"])
             if text.strip():
                 lines.append(re.sub(r"\s+", "", text))
-    whole = "".join(lines)
+    whole = toc_key("".join(lines))
     entries = {}
     for line in lines:
         m = re.match(r"^(.*?)[·.…]{3,}(\d+)$", line)
         if m:
-            entries[m.group(1)] = int(m.group(2))
+            entries[toc_key(m.group(1))] = int(m.group(2))
     year = data.get("연도", "")
     expected = [(f"Ⅰ.외부지적사항조치실적", data.get("쪽", {}).get("지적사항")),
                 (f"Ⅱ.{year}년주요추진실적", data.get("쪽", {}).get("주요추진실적")),
                 ("Ⅲ.세부평가내용별주요추진실적", data.get("쪽", {}).get("평가내용별"))]
     for e in data["평가내용"]:
-        phrase = re.sub(r"\s+", "", e["문구"])
+        phrase = toc_key(e["문구"])
         if phrase not in whole:
             rep.error("세부목차", f"평가내용{e['번호']} 문구가 PDF 세부목차와 다르다")
         for t in as_list(e.get("과제")):
-            expected.append((f"{t['번호']}.{re.sub(r'\s+', '', t['제목'])}", t.get("쪽")))
+            expected.append((f"{t['번호']}.{toc_key(t['제목'])}", t.get("쪽")))
     matched = 0
     for title, page_no in expected:
         if title not in entries:
@@ -439,18 +495,37 @@ def render_design(d, ref_users):
             note = " / ".join(x for x in (g.get("실적"), g.get("메모")) if x)
             out.append(f"| {md(g.get('항목'))} | {g.get('회수') or '—'} | {md(note)} |")
         out.append("")
+    known = {"배경", "연결", "비전", "목표", "세부목표", "설정근거", "축", "성과지표", "형식", "메모"}
+    for key, value in d.items():        # 협업체계·실행체계·지원체계처럼 지표마다 다른 꼬리 칸
+        if key in known:
+            continue
+        if isinstance(value, str):
+            out.append(f"- **{key}** {md(value)}")
+        elif isinstance(value, list):
+            out += bullets([x if isinstance(x, str) else " · ".join(f"{k} {v}" for k, v in x.items())
+                            for x in value], label=key)
     return out
 
 
-def render_scene(s, title_prefix):
+def render_box(b):
+    where = f"과제 {', '.join(map(str, as_list(b.get('과제'))))}" + (f"-{b['장면']}" if b.get("장면") else "")
+    return ([f"> **주요성과** (p.{b.get('쪽')}, {where})  "] + [f"> ∙{md(x)}  " for x in as_list(b.get("내용"))]
+            + [""])
+
+
+def render_scene(s, title_prefix, ref_users=None, boxes=()):
     out = []
     tag = f"[{s['태그']}] " if s.get("태그") else ""
     head = f"{title_prefix}{tag}{md(s.get('제목', ''))}" if s.get("제목") else title_prefix.rstrip(". ")
     if head:
         out.append(f"**{head}**{badge_text(s)}" + (f" · 축 {', '.join(as_list(s['축']))}" if s.get("축") else ""))
-    if s.get("형식"):
-        out.append(f"<sub>형식: {md(s['형식'])}</sub>")
+    if s.get("형식") or s.get("쪽"):
+        out.append("<sub>" + " · ".join(x for x in (f"p.{s['쪽']}" if s.get("쪽") else "",
+                                                     f"형식: {md(s['형식'])}" if s.get("형식") else "") if x)
+                   + "</sub>")
     out.append("")
+    if s.get("설계"):
+        out += render_design(s["설계"], ref_users or {})
     for beat in ("문제", "해결"):
         out += bullets(s.get(beat), label=beat)
     for g in strands(s):
@@ -461,6 +536,8 @@ def render_scene(s, title_prefix):
     out += bullets(s.get("결과"), label="결과")
     out += [f"<sub>* {md(x)}</sub>" for x in as_list(s.get("주석"))]
     out.append("")
+    for b in boxes:
+        out += render_box(b)
     return out
 
 
@@ -540,6 +617,8 @@ def render(data):
             out.append("편람 문구 분해: " + " · ".join(f"{k}「{md(v)}」→{','.join(claim.get(k, ['—']))}"
                                                  for k, v in keys.items()))
             out.append("")
+        if e.get("서두"):
+            out += ["#### 서두 `설계`", ""] + render_design(e["서두"], users)
         for t in as_list(e.get("과제")):
             mark = " `설계`" if role(t) == "설계" else ""
             axis = f" · 축 {', '.join(as_list(t['축']))}" if t.get("축") else ""
@@ -549,14 +628,10 @@ def render(data):
                 out += render_design(t["설계"], users)
             for s in scenes(t):
                 prefix = f"{s['기호']}. " if s.get("기호") else ""
-                out += render_scene(s, prefix)
-                if s.get("설계"):
-                    out += render_design(s["설계"], users)
+                out += render_scene(s, prefix, users, scene_boxes(e, t, s))
             for b in as_list(e.get("주요성과")):
-                if as_list(b.get("과제")) and as_list(b["과제"])[-1] == t["번호"]:
-                    out.append(f"> **주요성과** (p.{b.get('쪽')}, 과제 {', '.join(map(str, b['과제']))})  ")
-                    out += [f"> ∙{md(x)}  " for x in as_list(b.get("내용"))]
-                    out.append("")
+                if as_list(b.get("과제")) and as_list(b["과제"])[-1] == t["번호"] and not b.get("장면"):
+                    out += render_box(b)
     return "\n".join(out).rstrip() + "\n"
 
 

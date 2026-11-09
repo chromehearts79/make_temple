@@ -1,6 +1,10 @@
 """Rebuild pages of the 2025 KDN report, check each one and merge them into one HWPX.
 
 usage: python3 work/kdn2025/build_all.py <p001-050.pdf> [<p051-100.pdf>] [--pages 1-100] [--no-merge]
+       python3 work/kdn2025/build_all.py --sources <snapshot dir> --pages 1-100
+
+With --sources, report page N is read from <dir>/pNNN.json.gz (made once from the PDFs with
+.claude/skills/pdf-hwpx-layout/scripts/pdf_snapshot.py --number-from), so no PDF is needed.
 
 The report comes as 50-page PDFs: report page N is local page N-50 of the second PDF, etc.
 Writes output/pNN.hwpx per report page and output/kdn2025_report_pAAA-BBB.hwpx for the built range
@@ -43,19 +47,33 @@ def pages(spec):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("pdfs", type=Path, nargs="+", help="the report PDFs in order, 50 pages each")
+    ap.add_argument("pdfs", type=Path, nargs="*", help="the report PDFs in order, 50 pages each")
+    ap.add_argument("--sources", type=Path, help="folder of page snapshots pNNN.json.gz instead of PDFs")
     ap.add_argument("--pages", default=None, help="report pages, e.g. 1-100 or 51-60,70")
     ap.add_argument("--no-merge", action="store_true")
     args = ap.parse_args()
+    if not args.pdfs and not args.sources:
+        ap.error("give the report PDFs or --sources")
 
     built, problems = [], []
-    wanted = pages(args.pages) if args.pages else range(1, 50 * len(args.pdfs) + 1)
+    if args.pages:
+        wanted = pages(args.pages)
+    elif args.sources:
+        wanted = sorted(int(f.name[1:4]) for f in args.sources.glob("p[0-9][0-9][0-9].json.gz"))
+    else:
+        wanted = range(1, 50 * len(args.pdfs) + 1)
     for n in wanted:
         part, local = (n - 1) // 50, (n - 1) % 50 + 1
-        if part >= len(args.pdfs):
+        if args.sources:
+            pdf, local = args.sources / f"p{n:03}.json.gz", 1
+            if not pdf.exists():
+                problems.append(f"p{n:02}: no snapshot {pdf.name}")
+                continue
+        elif part >= len(args.pdfs):
             problems.append(f"p{n:02}: no PDF given for report page {n}")
             continue
-        pdf = args.pdfs[part]
+        else:
+            pdf = args.pdfs[part]
         script = SHARED.get(n, WORK / f"p{n:02}.py")
         target = OUT / f"p{n:02}.hwpx"
         if not script.exists():

@@ -96,18 +96,16 @@ def check(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("hwpx", type=Path)
-    parser.add_argument("--pdf", type=Path)
+    parser.add_argument("--pdf", type=Path, help="the source PDF, or its page snapshot (.json.gz)")
     parser.add_argument("--page", type=int, default=1)
     args = parser.parse_args()
     actual = check(args.hwpx)
     unsafe = unsafe_symbols(read_text(args.hwpx))
     failed = False
     if args.pdf:
-        import pymupdf
-        with pymupdf.open(args.pdf) as pdf:
-            require(1 <= args.page <= len(pdf), "PDF page out of range")
-            source = pdf[args.page - 1].get_text()
-            lines = [line for line in source.splitlines() if normalized(line)]
+        from pdf_coords import open_page
+        source = open_page(args.pdf, args.page).get_text()
+        lines = [line for line in source.splitlines() if normalized(line)]
         missing = [line for line in lines if normalized(line) not in actual]
         print(f"PDF lines matched: {len(lines) - len(missing)}/{len(lines)}")
         if missing:

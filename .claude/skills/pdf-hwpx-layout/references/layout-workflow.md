@@ -6,14 +6,22 @@
 
 ```bash
 python3 -m pip install -r scripts/requirements.txt
+python3 scripts/pdf_snapshot.py "/path/report.pdf" "/path/sources" --number-from 1   # 처음 한 번
 python3 scripts/pdf_coords.py "/path/report.pdf" 51 "/path/analysis"
 python3 scripts/kdn_p51.py "/path/report.pdf" "/path/draft.hwpx"
 python3 scripts/check_hwpx.py "/path/draft.hwpx" --pdf "/path/report.pdf" --page 51
 python3 scripts/hwpx_preview.py "/path/draft.hwpx" "/path/preview.png" --pdf "/path/report.pdf" --page 51
+python3 scripts/hwpx_preview.py "/path/draft.hwpx" "/path/preview.png" --ref "/path/screenshot.png"
 python3 scripts/merge_hwpx.py "/path/merged.hwpx" "/path/p01.hwpx" "/path/p02.hwpx"
 ```
 
 `hwpx_preview.py`는 Node의 playwright와 Chromium이 있어야 한다. Claude 클라우드 세션에는 미리 설치되어 있다.
+
+### PDF 없이 다시 만들기: 쪽 스냅숏
+
+원본 PDF는 세션마다 따라오지 않는다. PDF가 있을 때 `pdf_snapshot.py`로 쪽마다 `pNNN.json.gz`(글자층, 그림 정보, 이미지 위치)와 `pNNN.png`(쪽 그림)를 한 번 만들어 저장소에 두면, 이후에는 PDF 자리에 스냅숏을 넘겨 레시피, `pdf_coords.py`, `check_hwpx.py --pdf`, `hwpx_preview.py --pdf`를 그대로 돌릴 수 있다. 스냅숏에는 `--page`가 필요 없다. 여러 PDF로 나뉜 보고서는 `--number-from 51`처럼 보고서 쪽 번호로 이름을 맞춘다. 레시피가 스냅숏에 없는 `get_text` 형식을 부르면 오류로 알려 준다. 그때는 `pdf_coords.SNAPSHOT_TEXT`에 그 형식을 더하고 스냅숏을 다시 만든다. 빽빽한 쪽 하나가 약 180KB다.
+
+원본 PDF도 스냅숏도 없으면 사용자에게 그 쪽 화면(스크린샷)을 받는다. `hwpx_preview.py --ref 화면.png`가 결과를 그 옆에 놓아 준다. 다만 글자층이 없으므로 원문 대조는 이전 결과물과 비교하는 것으로 대신한다.
 
 `kdn_p49.py`, `kdn_p50.py`, `kdn_p51.py`는 2025년도 한전KDN 경영실적보고서의 인쇄 29~31쪽에 각각 대응한다. 페이지 제목으로 입력을 확인하고, 다른 판본의 좌표는 시각 대조 후 조정한다. PDF에서 이미 대상 한 쪽을 추출했으면 레시피에 `--page 1`을 붙인다. 원본 PDF와 글꼴은 별도 입력이다.
 
@@ -34,7 +42,8 @@ python3 scripts/merge_hwpx.py "/path/merged.hwpx" "/path/p01.hwpx" "/path/p02.hw
 |---|---|
 | ➜ ➡ (본문 속 화살표) | → |
 | ➜ (상자 사이 연결 칸) | ▶ ▼ |
-| ❶ ❷ ❸ | ① ② ③ |
+| ❶ ❷ ❸ (동그라미) | ① ② ③ |
+| 네모 번호 그림(■1, □1) | `tag("1", …)` 번호 상자 ([상자 속 상자 유형집](box-patterns.md)) |
 | ✓ (평가내용 배지) | 지운다 |
 | ✓ (목록 머리표) | ◎ |
 | ☑ | ▣ |
@@ -47,11 +56,9 @@ PDF 글자층에 Wingdings 같은 기호 글꼴의 사용자 정의 문자(예: 
 
 ## 박스 안의 박스
 
-칸 안의 글줄이 작은 색 상자로 된 꼬리표로 시작하는 경우가 있다. 예: 카드 제목 `[예측 고도화] 정현원 실시간 모니터링`, 배경 칸 `∙[환경분석] 육아휴직 등 …`. PDF 글자층에서는 꼬리표와 뒤 글이 한 줄로 나오므로 글줄 좌표만으로는 상자를 알 수 없다. 이 줄을 한 문단으로 넣으면 꼬리표 상자가 사라진다.
+글줄 안의 작은 상자(꼬리표, 번호 상자)와 칸 안에 들어간 상자는 PDF 글자층에서 보이지 않는다. 글줄 좌표만으로 만들면 상자가 사라진다. 판단 근거는 그림 정보에 있다. 글줄 일부만 감싸는 작은 채움이나 테두리 사각형이 있고 바로 옆에 같은 줄 글자가 있으면 꼬리표다. `pdf_coords.py`는 이것을 `page.json`의 `inline_tags`로 저장하고, 위치(start·middle·end), 채움색 또는 outline, 글자색을 화면에 찍는다. 옆 칸에 든 글자는 옆에 있어도 같은 줄로 치지 않으므로 표 머리 행은 잡히지 않는다. 그래도 라벨 칸이 섞일 수 있어 `page.png`와 대조한다.
 
-판단 근거는 그림 정보에 있다. 글줄 일부 밑에만 깔린 작은 채움 사각형이 있거나, 같은 줄에서 일부 글자만 흰색이면 꼬리표다. `pdf_coords.py`는 이런 글자를 `page.json`의 `inline_tags`에 넣고 화면에도 알린다. 칸 배경처럼 줄 전체를 덮는 채움과, 줄이 라벨 하나뿐인 짙은 라벨 칸은 꼬리표로 치지 않는다. 알린 꼬리표는 `page.png`에서 다시 확인한다.
-
-꼬리표가 든 줄은 `layout.boxed_line(조각들, 안쪽 너비, 줄 높이)`로 만든다. 조각은 읽는 순서대로 글자열과 `tag(글자, 채움)` 상자를 섞어 준다. 예: `["∙", tag("환경분석", 옅은회색, "#161616"), "육아휴직 등 …"]`, `["…지역 전문사원", tag("개선", 중간회색)]`. 한 줄이 칸 안에 글자처럼 놓이는 1행 표가 된다. 상자 칸만 채움을 갖고 글자 칸은 테두리가 없으며, 모두 세로 가운데에 맞춘다. 안쪽 너비는 바깥 칸 너비에서 좌우 여백을 뺀 값이다. 폭은 `text_width()`로 넉넉히 잡는다. 합이 안쪽 너비를 넘으면 줄 전체 장평을 72까지 낮추고, 그래도 넘으면 가장 긴 글자 칸을 줄인다. 폭을 넉넉히 잡으므로 줄 끝 상자 앞에 몇 pt 빈칸이 생길 수 있다. 원문에서 그림이던 번호 상자(❶, 테두리 [1])는 `tag("1", 채움, width=1100, height=1150)`처럼 줄보다 낮은 상자로 만든다. 원문 글자는 상자 밖에 그대로 둔다. 채움은 `border("#D9D9D9")`처럼 선 없는 채움이나, 흰 바탕에 `top/bottom/sides="thin"` 테두리를 쓴다. 여러 줄을 쌓을 때는 줄마다 `boxed_line`을 이어 붙이고 줄 사이 간격은 `gap`으로 준다. 일반 문단과 섞어도 된다. 카드 아래 성과 상자처럼 칸 안에 들어간 상자는 `layout.nest([[cell(...)]])`로 만든다. 꼬리표 문구가 PDF 줄에 없으면 레시피가 멈추게 한다(`kdn_p50.py`의 `card_tags`, `background_line`, `split_tag`).
+만드는 법과 50쪽에서 쓴 유형별 코드는 [상자 속 상자 유형집](box-patterns.md)에 있다. 레시피를 쓰기 전에 그 문서의 "디자인 목록"부터 만든다.
 
 ```python
 from hwpx_layout import Layout, cell

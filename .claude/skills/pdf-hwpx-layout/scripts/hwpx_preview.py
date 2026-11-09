@@ -4,6 +4,8 @@ This is NOT a Hancom renderer. Fonts and line breaking differ, so use it only to
 gross problems: wrong cell mapping, missing columns, broken merges and page overflow.
 
 usage: python3 scripts/hwpx_preview.py draft.hwpx out.png [--pdf report.pdf --page 13]
+       python3 scripts/hwpx_preview.py draft.hwpx out.png --pdf p013.json.gz   (page snapshot)
+       python3 scripts/hwpx_preview.py draft.hwpx out.png --ref screenshot.png  (any page picture)
 
 Needs Node with the playwright package and a Chromium build (preinstalled in Claude cloud sessions).
 """
@@ -180,12 +182,38 @@ table{{border-collapse:collapse;table-layout:fixed}} td{{box-sizing:border-box}}
 <script>window.PAGE={json.dumps(dict(height=height, top=m['top'], limit=limit))}</script>"""
 
 
+def reference_page(args):
+    """(label, (width, height) in pt, draw(canvas, rect)) for the right-hand original, or None."""
+    from pdf_coords import SnapshotPage, open_page
+    if args.ref:
+        name = args.ref.name
+        pix = pymupdf.Pixmap(str(args.ref)) if args.ref.suffix.lower() in (".png", ".jpg", ".jpeg") else None
+        if pix is None:   # e.g. webp: convert through Pillow when available
+            from PIL import Image
+            tmp = Path(tempfile.mkdtemp()) / "ref.png"
+            Image.open(args.ref).convert("RGB").save(tmp)
+            args.ref, pix = tmp, pymupdf.Pixmap(str(tmp))
+        width = 612.0   # show the picture at A4-ish width beside the preview
+        return (f"Original: {name}", (width, width * pix.height / pix.width),
+                lambda canvas, rect: canvas.insert_image(rect, filename=str(args.ref)))
+    if not args.pdf:
+        return None
+    page = open_page(args.pdf, args.page)
+    size = (page.rect.width, page.rect.height)
+    if isinstance(page, SnapshotPage):
+        return (f"PDF page {page.number + 1} (snapshot)", size,
+                lambda canvas, rect: canvas.insert_image(rect, filename=str(page.image_path())))
+    return (f"PDF page {args.page}", size,
+            lambda canvas, rect: canvas.show_pdf_page(rect, page.parent, page.number))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("hwpx", type=Path)
     ap.add_argument("out", type=Path)
-    ap.add_argument("--pdf", type=Path)
+    ap.add_argument("--pdf", type=Path, help="source PDF or page snapshot (.json.gz) to show on the right")
     ap.add_argument("--page", type=int, default=1)
+    ap.add_argument("--ref", type=Path, help="a picture of the original page (screenshot or scan) instead")
     args = ap.parse_args()
     with tempfile.TemporaryDirectory() as tmp:
         page_html = Path(tmp) / "page.html"
@@ -194,22 +222,22 @@ def main():
         result = subprocess.run(["node", str(SHOT_JS), str(page_html), str(shot), str(SCALE)],
                                 capture_output=True, text=True, check=True)
         info = json.loads(result.stdout)
-        if not args.pdf:
+        reference = reference_page(args)
+        if reference is None:
             shot.replace(args.out)
         else:
+            label, size, draw = reference
             img = pymupdf.Pixmap(str(shot))
-            with pymupdf.open(args.pdf) as src:
-                rect = src[args.page - 1].rect
-                left_h = img.height / SCALE
-                doc = pymupdf.open()
-                canvas = doc.new_page(width=rect.width * 2 + 20, height=max(rect.height, left_h) + 18)
-                canvas.insert_text((4, 12), "HWPX preview (approximate)", fontsize=9, color=(0.8, 0, 0))
-                canvas.insert_text((rect.width + 24, 12), f"PDF page {args.page}", fontsize=9, color=(0.8, 0, 0))
-                canvas.insert_image(pymupdf.Rect(0, 18, rect.width, 18 + left_h), filename=str(shot))
-                canvas.show_pdf_page(pymupdf.Rect(rect.width + 20, 18, rect.width * 2 + 20, 18 + rect.height),
-                                     src, args.page - 1)
-                canvas.draw_line((rect.width + 10, 0), (rect.width + 10, canvas.rect.height), color=(0.7, 0.7, 0.7))
-                canvas.get_pixmap(matrix=pymupdf.Matrix(SCALE * 0.75, SCALE * 0.75)).save(args.out)
+            width, height = size
+            left_h = img.height / SCALE
+            doc = pymupdf.open()
+            canvas = doc.new_page(width=width * 2 + 20, height=max(height, left_h) + 18)
+            canvas.insert_text((4, 12), "HWPX preview (approximate)", fontsize=9, color=(0.8, 0, 0))
+            canvas.insert_text((width + 24, 12), label, fontsize=9, color=(0.8, 0, 0))
+            canvas.insert_image(pymupdf.Rect(0, 18, width, 18 + left_h), filename=str(shot))
+            draw(canvas, pymupdf.Rect(width + 20, 18, width * 2 + 20, 18 + height))
+            canvas.draw_line((width + 10, 0), (width + 10, canvas.rect.height), color=(0.7, 0.7, 0.7))
+            canvas.get_pixmap(matrix=pymupdf.Matrix(SCALE * 0.75, SCALE * 0.75)).save(args.out)
     over = info["flow_bottom_pt"] - info["limit_pt"]
     print(f"Wrote {args.out}. Flow bottom {info['flow_bottom_pt']:.0f}pt vs page limit {info['limit_pt']:.0f}pt: "
           + (f"OVERFLOW by ~{over:.0f}pt (likely spills to a 2nd page)" if over > 0 else f"fits with ~{-over:.0f}pt spare"))

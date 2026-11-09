@@ -185,7 +185,7 @@ for (a, lab, t0, t1, e), plan, rows, result in zip(r3, plans, tagged, results):
     for i, (tag, text) in enumerate(rows):
         r = 7 + i
         g.put(lab, t0, r, r + 1, [])
-        g.put(t0, t1, r, r + 1, tag, OUTLINED, size=950, line=1050, ratio=80, fit=False)   # padding 40/40
+        g.put(t0, t1, r, r + 1, tag, OUTLINED, size=900, line=1050, ratio=78, fit=False)   # padding 40/40
         flat(g, t0, r, 40, 40)
         runs = text if isinstance(text, list) else [S(text)]
         g.put(t1, e, r, r + 1, [runs], frame(right="soft"), align="LEFT", line=1150)

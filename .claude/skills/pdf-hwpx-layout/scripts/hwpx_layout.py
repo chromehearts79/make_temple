@@ -220,34 +220,45 @@ class Layout:
         return table
 
 
-    def nest(self, rows, *, align="CENTER"):
+    def nest(self, rows, *, align="CENTER", gap=0):
         """A cell paragraph holding a small table: a box inside a box, such as a label tag.
 
         The inner table sits like a character, so the paragraph alignment places it. The
         paragraph uses percent line spacing so its line grows to the inner table's height.
+        gap is the space below the inner table, e.g. between stacked tagged lines.
         """
         holder = self.p(size=100, line=0, align=align)
-        holder[0].insert(0, self.table(rows))
+        holder[0].insert(0, self.table(rows, gap=gap))
         return holder
 
 
-    def tagged(self, tag, text, width, height, tag_fill, *, tag_size=900, tag_color="#FFFFFF",
-               size=1080, color="#161616", ratio=80, gap=200, align="CENTER", bold=True):
+    def tagged(self, tag, text, width, height, tag_fill, *, lead="", tag_size=900,
+               tag_color="#FFFFFF", size=1080, color="#161616", ratio=80, space=200,
+               align="CENTER", bold=True, gap=0):
         """Cell contents with a small filled tag box followed by text, both centred vertically.
 
         A one-row nested table: the tag cell has the fill, the text cell has none. The pair is
-        sized from text_width() and centred in the outer cell, never wider than `width`, the
-        outer cell's inner width (cell width minus its left and right padding).
+        sized from text_width() and placed by `align` in the outer cell, never wider than
+        `width`, the outer cell's inner width (cell width minus its left and right padding).
+        lead is source text before the tag, such as a "∙" bullet, kept in its own cell so the
+        document text still reads in PDF order. Returns a list of paragraphs for one cell.
         """
-        tag_w = text_width(tag, tag_size, ratio) + 300 + 200
-        text_w = min(text_width(text, size, ratio) + gap + 300, width - tag_w)
         pad = dict(left=150, right=150, top=0, bottom=0)
-        return [self.nest([[
-            cell(0, tag_w, height, [self.p(tag, tag_size, True, tag_color, align="CENTER",
-                                            line=tag_size + 200, ratio=ratio)], tag_fill, margin=pad),
-            cell(1, text_w, height, [self.p(text, size, bold, color, line=size + 170, ratio=ratio)],
-                 margin=dict(pad, left=gap, right=0)),
-        ]], align=align)]
+        cells = []
+        if lead:
+            lead_w = text_width(lead, size, ratio) + 100
+            cells.append(cell(0, lead_w, height, [self.p(lead, size, bold, color, line=size + 170,
+                                                         ratio=ratio)], margin=dict(pad, left=0, right=100)))
+        tag_w = text_width(tag, tag_size, ratio) + 300 + 200
+        used = sum(c[1] for c in cells) + tag_w
+        text_w = min(text_width(text, size, ratio) + space + 300, width - used)
+        cells.append(cell(len(cells), tag_w, height, [self.p(tag, tag_size, True, tag_color, align="CENTER",
+                                                             line=tag_size + 200, ratio=ratio)],
+                          tag_fill, margin=pad))
+        cells.append(cell(len(cells), text_w, height, [self.p(text, size, bold, color, line=size + 170,
+                                                              ratio=ratio)],
+                          margin=dict(pad, left=space, right=0)))
+        return [self.nest([cells], align=align, gap=gap)]
 
 
     def center(self, text,size=1090,bold=False,color="#161616"):

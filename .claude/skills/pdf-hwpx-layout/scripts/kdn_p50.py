@@ -83,15 +83,22 @@ for y,h,labeltext,is_head in [(392,2200,"추진전략",True),(419,4750,"추진�
 
 section_heading(2,472,380)
 add_text(only(50,60,498,502),1380,True,line=1720,after=250,ratio=93)
+# Small filled tag boxes inside a box: 배경 lines and card titles (PDF: tag and text on one line).
+tag_fill=border("#686868")
+def background_line(line,tag,gap=0):
+    if not line.startswith("∙"+tag):
+        raise ValueError(f"배경 line {line!r} does not start with ∙{tag}")
+    return layout.tagged(tag,line[len(tag)+1:].strip(),45500,1300,tag_fill,lead="∙",tag_size=950,
+                         size=1040,ratio=78,bold=False,align="LEFT",space=150,gap=gap)
 direction=reg(100,450,535,539)
-tab([[label(0,3900,3380,"배경"),c(1,46000,3380,[only(100,105,520,523),
-      direction[0]+" ① "+direction[1]+" ② "+direction[2]+" ③ "+direction[3]],white,size=1040,ratio=78)]],410)
+tab([[label(0,3900,3380,"배경"),cell(1,46000,3380,
+      background_line(only(100,105,520,523),"환경분석",gap=250)+
+      background_line(direction[0]+" ① "+direction[1]+" ② "+direction[2]+" ③ "+direction[3],"추진방향"),white)]],410)
 # Three editable strategy cards with narrow gutters.
 card_width=15650
 gap_width=1475
-# Each card title starts with a small filled tag box inside the title box (PDF: one text line).
+# Each card title starts with a small filled tag box inside the title box.
 card_tags=("예측 고도화","정부협의 체계화","고용유지 최대화")
-tag_fill=border("#686868")
 def cards_row(y,h,mode):
     row=[]
     for i,(l,r) in enumerate([(57,220),(229,390),(400,560)]):

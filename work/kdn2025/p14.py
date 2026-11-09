@@ -34,9 +34,15 @@ COLS4 = [(XC, 221.75), (227.0, 333.5), (338.75, 444.75), (450.5, X1)]
 SPLIT4 = [XC, 223.6, 336.8, 445.5, X1]                   # dashed separators of one wide box
 
 
-def label(g, r0, r1, lines, bottom=None):
+def label(g, r0, r1, lines, bottom=None, line=1300):
     """Gray label box of the left column (a white bottom edge separates stacked labels)."""
-    g.put(X0, XL, r0, r1, [[(t, 1100, False, INK)] for t in lines], frame("#D9D9D9", bottom=bottom), line=1300)
+    g.put(X0, XL, r0, r1, [[(t, 1100, False, INK)] for t in lines], frame("#D9D9D9", bottom=bottom), line=line)
+
+
+def pad(g, x0, r0, **margin):
+    """Set the padding of the cell put at (x0, row r0), e.g. top=0, bottom=0 for a thin row."""
+    c0 = g.xs.index(kit.to_x(x0))
+    g.items[r0, c0] = g.items[r0, c0][:7] + (margin,)
 
 
 def text(lines, size, bold=False, color=INK):
@@ -95,7 +101,7 @@ for k, items in enumerate(goals):
 block(g, 207.0)
 
 g = Grid("ceo", [X0, XL] + sorted({x for c in COLS4 for x in c}), [2700])
-label(g, 0, 1, ["CEO", "경영방침"])
+label(g, 0, 1, ["CEO", "경영방침"], line=1250)
 for (a, e), t in zip(COLS4, ["디지털 혁신 주도", "지속성장 실현", "ESG경영 강화", "시스템경영 구현"]):
     g.put(a, e, 0, 1, t, frame("#D1D1D1"), size=1150, bold=True)
 block(g, 255.75)
@@ -141,14 +147,18 @@ for (a, e), cards in zip(COLS4, tasks):
     for i, (chip, title, body) in enumerate(cards):
         r = 3 * i
         g.put(a, a + 4.0, r, r + 1, [], frame(GRAYH, top="soft", left="soft"))
-        g.put(a + 4.0, a + 19.0, r, r + 1, chip, frame(CHIP, top="soft"), size=880, bold=True, color=WHITE)
+        g.put(a + 4.0, a + 19.0, r, r + 1, chip, frame(CHIP, top="soft"), size=880, bold=True, color=WHITE,
+              ratio=85, fit=False)
+        pad(g, a + 4.0, r, left=0, right=0)
         g.put(a + 19.0, e, r, r + 1, title, frame(GRAYH, top="soft", right="soft"), size=950)
-        g.put(a, e, r + 1, r + 2, text(body, 950), frame(left="soft", right="soft", bottom="soft"), line=1100)
+        size = 900 if len(max(body, key=len)) > 17 else 950
+        g.put(a, e, r + 1, r + 2, text(body, size), frame(left="soft", right="soft", bottom="soft"), line=1100)
 block(g, 364.5)
 
 g = Grid("chevrons", [X0, XL] + sorted({x for c in COLS4 for x in c}), [525])
 for a, e in COLS4:
-    g.put(a, e, 0, 1, "▼", size=520, color="#7A7A7A", line=520)
+    g.put(a, e, 0, 1, "▼", size=500, color="#7A7A7A", line=500)
+    pad(g, a, 0, top=0, bottom=0)
 block(g, 501.0)
 
 # 53개 실행과제 (outlined) over 주요성과지표(KPI) (gray).
@@ -158,7 +168,7 @@ kpis = [("IDPP플랫폼 개발실적", "등 54개"), ("수소ICT사업 매출실
         ("AI솔루션 도입실적", "등 36개")]
 g = Grid("actions-kpi", [X0, XL] + sorted({x for c in COLS4 for x in c}), [3200, 2675])
 label(g, 0, 1, ["53개", "실행과제"], bottom="gap")
-label(g, 1, 2, ["주요성과", "지표(KPI)"])
+label(g, 1, 2, ["주요성과", "지표(KPI)"], line=1250)
 for (a, e), (first, pre, count), kpi in zip(COLS4, actions, kpis):
     g.put(a, e, 0, 1, [[(first, 1050, False, INK)], [(pre, 1050, False, INK), (count, 1250, True, INK)]],
           frame(top="mid", bottom="mid", left="mid", right="mid"), line=1350)
@@ -194,26 +204,26 @@ block(g, 626.5)
 # ---------------------------------------------------------------------------
 # 2035 roadmap (image): staggered slogan pills with arrows, three STEP bars.
 # ---------------------------------------------------------------------------
-g = Grid("roadmap-title", [X0, X1], [1700])
-g.put(X0, X1, 0, 1, "“2035 한전KDN 미래 성장 로드맵”", align="LEFT", size=1400, bold=True, line=1600)
-block(g, 671.5)
+g = Grid("roadmap-title", [X0, X1], [1600])
+g.put(X0, X1, 0, 1, "“2035 한전KDN 미래 성장 로드맵”", align="LEFT", size=1350, bold=True, line=1440)
+block(g, 669.5)
 
 xs = [X0, 190.5, 221.75, 223.75, 225.3, 356.5, 388.75, 391.0, 522.0, 541.0, X1]
-ys = [686.0, 691.0, 695.8, 701.2, 706.2, 707.8, 710.8, 712.3, 717.8, 735.3]
+ys = [686.0, 691.0, 696.0, 701.0, 706.0, 711.0, 717.8, 735.3]
 g = Grid("roadmap", xs, [int(round((b - a) * 100)) for a, b in zip(ys, ys[1:])])
 fills = [("#BFBFBF", INK), ("#7F7F7F", WHITE), ("#585858", WHITE)]
-pills = [(X0, 190.5, 2, 6, "AI 혁신으로 에너지산업 AX·DX 주도"), (225.3, 356.5, 1, 4, "탄소중립 대응을 넘어 에너지전환 선도"),
+pills = [(X0, 190.5, 2, 5, "AI 혁신으로 에너지산업 AX·DX 주도"), (225.3, 356.5, 1, 4, "탄소중립 대응을 넘어 에너지전환 선도"),
          (391.0, 522.0, 0, 3, "글로벌 에너지 생태계의 중심으로 도약")]
 for (a, e, r0, r1, t), (fill, color) in zip(pills, fills):
     g.put(a, e, r0, r1, t, frame(fill), size=1000, color=color, line=1150)
-g.put(190.5, 225.3, 2, 5, "→", size=1300, color="#8C8C8C", line=1300)
-g.put(356.5, 391.0, 1, 4, "→", size=1300, color="#8C8C8C", line=1300)
-steps = [(X0, 221.75, 8, "01", "전환기", "(’26~’28년)"), (223.75, 388.75, 7, "02", "성장기", "(’29~’32년)"),
-         (391.0, 541.0, 5, "03", "성숙기", "(’33년~’35년)")]
+g.put(190.5, 225.3, 2, 5, "→", size=1200, color="#8C8C8C", line=1200)
+g.put(356.5, 391.0, 1, 4, "→", size=1200, color="#8C8C8C", line=1200)
+steps = [(X0, 221.75, 6, "01", "전환기", "(’26~’28년)"), (223.75, 388.75, 5, "02", "성장기", "(’29~’32년)"),
+         (391.0, 541.0, 4, "03", "성숙기", "(’33년~’35년)")]
 for (a, e, r0, num, name, years), (fill, color) in zip(steps, fills):
-    g.put(a, e, r0, 9, [[("  STEP ", 650, False, color), (num, 1400, False, color), ("  " + name, 1350, True, color),
+    g.put(a, e, r0, 7, [[("  STEP ", 650, False, color), (num, 1400, False, color), ("  " + name, 1350, True, color),
                          (" " + years, 1000, False, color)]], frame(fill), align="LEFT", line=1560)
-g.put(541.0, X1, 5, 9, "▶", size=1500, color="#585858", line=1500)
+g.put(541.0, X1, 4, 7, "▶", size=1500, color="#585858", line=1500, fit=False)
 block(g, 686.0)
 
 # Business lines per stage: gray label pill + text, dotted row separators.
@@ -225,8 +235,8 @@ xs = [X0, 102.5, 221.75, 223.75, 269.25, 388.75, 391.25, 436.75, X1]
 g = Grid("business-lines", xs, [1725, 1825, 1700])
 for (a, m, e), items, (fill, color) in zip(groups, lines, fills):
     for r, (name, item) in enumerate(zip(["전력계통사업", "ICT운영사업", "미래성장사업"], items)):
-        g.put(a, m, r, r + 1, name, frame(fill, bottom="gap" if r < 2 else None), size=900, color=color)
-        g.put(m, e, r, r + 1, item, frame(bottom="dot" if r < 2 else None), align="LEFT", size=980)
+        g.put(a, m, r, r + 1, name, frame(fill, bottom="gap" if r < 2 else None), size=880, color=color)
+        g.put(m, e, r, r + 1, item, frame(bottom="dot" if r < 2 else None), align="LEFT", size=930)
 block(g, 744.5)
 
 kit.finish(target, end=801.6)

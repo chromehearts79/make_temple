@@ -245,7 +245,16 @@ class Grid:
                 out[r].append(cell(start, self.xs[c] - self.xs[start], self.hs[r], [blank()], "1", 1, c - start))
             if not any(item[5] == 1 for item in out[r]):
                 WARN.append(f"{self.name}: row {r} has no single-row cell")
-        return [sorted(row, key=lambda item: item[0]) for row in out]
+        return _compact([sorted(row, key=lambda item: item[0]) for row in out])
+
+
+def _compact(rows):
+    """Drop column edges that no cell starts or ends on. Such an edge leaves a column whose
+    width nothing defines; cell widths are explicit, so the geometry does not change."""
+    edges = sorted({e for row in rows for item in row for e in (item[0], item[0] + item[6])})
+    index = {e: i for i, e in enumerate(edges)}
+    return [[(index[item[0]], *item[1:6], index[item[0] + item[6]] - index[item[0]], *item[7:])
+             for item in row] for row in rows]
 
 
 def _is_runs(value):

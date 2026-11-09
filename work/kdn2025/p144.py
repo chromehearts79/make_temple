@@ -117,14 +117,14 @@ block(g, 181.0)
 
 # 추진방향: two numbered heads, two bullets each, dotted separator; 국정94 tag.
 xs = [X0, LAB, IN, 136.5, 293.0, 316.0, 329.5, 335.5, 341.0, 360.5, X1]
-g = Grid("direction", xs, [1900, 350, 1430, 1430, 130])
+g = Grid("direction", xs, [1900, 300, 1430, 1430, 200])
 label(g, 0, 5, "추진방향")
 num = frame("#A2A2A2")
 head = frame("#EFEFEF", bottom="mid")
 g.put(IN, 136.5, 0, 1, "1", num, size=1400, color=WHITE, line=1500, fit=False)
 g.put(136.5, 329.5, 0, 1, "공통 역량 강화 교육", head, size=1150, bold=True, align="LEFT", line=1350)
 g.put(341.0, 360.5, 0, 1, "2", num, size=1400, color=WHITE, line=1500, fit=False)
-g.put(360.5, X1, 0, 1, "노 – 사 계층별 차별화 교육", head, size=1150, bold=True, align="LEFT", line=1350)
+g.put(360.5, X1, 0, 1, "노 - 사 계층별 차별화 교육", head, size=1150, bold=True, align="LEFT", line=1350)
 g.put(329.5, 335.5, 0, 5, [], frame(right="dot"))
 g.put(IN, 329.5, 2, 3, [dot("노동조합법 개정", ("(노란봉투법)", SMALL), " 관련 이슈 반영")], align="LEFT", line=1350)
 g.put(IN, 293.0, 3, 4, [dot("새정부 노사관계 강화 정책 기조 반영")], align="LEFT", line=1350)
@@ -137,10 +137,10 @@ g.put(341.0, X1, 4, 5, [], frame(bottom="mid"))
 block(g, 210.6)
 
 # 운영체계: P / D / A / C stages (tag + band, tagged lines), cycle arrows, 역량진단 note.
-xs = [X0, LAB, IN, 141.0, 144.0, 165.5, 184.0, 209.0, 334.0, 336.0, 362.0, 387.0, 523.0, 543.0, X1]
-hs = [1450, 650, 1250, 1250, 750,      # P / D band, pad, two lines, pad      266.6 .. 320.1
-      1450, 600, 1250, 1250, 200,      # A / C band, pad, two lines, pad      320.1 .. 367.6
-      600, 1300, 1300, 750]            # 역량진단 note (dotted box)            367.6 .. 407.1
+xs = [X0, LAB, IN, 141.0, 165.5, 184.0, 209.0, 334.0, 336.0, 352.0, 362.0, 377.0, 387.0, 530.0, 543.0, X1]
+hs = [1450, 400, 1350, 1350, 800,      # P / D band, pad, two lines, pad      266.6 .. 320.1
+      1450, 350, 1350, 1350, 250,      # A / C band, pad, two lines, pad      320.1 .. 367.6
+      450, 1400, 1400, 700]            # 역량진단 note (dotted box)            367.6 .. 407.1
 g = Grid("pdca", xs, hs)
 label(g, 0, 14, "운영체계")
 band = frame(BAND)
@@ -164,24 +164,23 @@ for r, a, tag, text in lines:
     e = 334.0 if a < 300 else 543.0
     g.put(a, t, r, r + 1, tag, BOXED, size=1030, line=1150, fit=False)
     tight(g, a, r)
-    g.put(t, e, r, r + 1, text, size=BODY, align="LEFT", line=1250)
+    g.put(t, e, r, r + 1, text, size=BODY, align="LEFT", line=1180)
 g.put(IN, 141.0, 1, 5, "▲", size=900, color=ARROW, line=1000)        # A -> P
 g.put(543.0, X1, 1, 5, "▼", size=900, color=ARROW, line=1000)        # D -> C
 # 역량진단 note: dotted box, 기존 (outlined) ▶ 개선 (dark) tags.
 note = dict(left="dot", right="dot")
-g.put(141.0, 523.0, 10, 11, [], frame(top="dot", **note))
-g.put(141.0, 144.0, 11, 13, [], frame(left="dot"))
-g.put(144.0, 184.0, 11, 12, "*역량진단", size=BODY, align="LEFT", line=1250)
-tight(g, 144.0, 11, 0, 0)
+g.put(141.0, 530.0, 10, 11, [], frame(top="dot", **note))
+g.put(141.0, 184.0, 11, 13, [[S("*역량진단", 1050)]], frame(left="dot"), align="LEFT", line=1240)
+tight(g, 141.0, 11, 250, 0)
 g.put(184.0, 209.0, 11, 12, "기존", BOXED, size=1030, line=1150, fit=False)
 tight(g, 184.0, 11)
 g.put(209.0, 334.0, 11, 13, [[S("(2개 분야 10항목) 노사관계 역량")], [S("사전·사후진단")]], align="LEFT", line=1300)
-g.put(334.0, 362.0, 11, 13, "▶", size=1200, color=ARROW, line=1300, fit=False)
-g.put(362.0, 387.0, 11, 12, "개선", IMPROVED, size=1030, color=WHITE, line=1150, fit=False)
-tight(g, 362.0, 11)
-g.put(387.0, 523.0, 11, 13, [[S("(8개 분야 34항목) 법·제도 실무, 협상·")], [S("의사소통, 갈등관리·문제해결 등 추가")]],
+g.put(334.0, 352.0, 11, 13, "▶", size=1200, color=ARROW, line=1300, fit=False)
+g.put(352.0, 377.0, 11, 12, "개선", IMPROVED, size=1030, color=WHITE, line=1150, fit=False)
+tight(g, 352.0, 11)
+g.put(377.0, 530.0, 11, 13, [[S("(8개 분야 34항목) 법·제도 실무, 협상·")], [S("의사소통, 갈등관리·문제해결 등 추가")]],
       frame(right="dot"), align="LEFT", line=1300)
-g.put(141.0, 523.0, 13, 14, [], frame(bottom="dot", **note))
+g.put(141.0, 530.0, 13, 14, [], frame(bottom="dot", **note))
 block(g, 266.6)
 
 # ---------------------------------------------------------------------------
@@ -246,7 +245,7 @@ g.put(X0, C1[0], 1, last, [], frame(left="soft"))
 g.put(C3[1], X1, 1, last, [], frame(right="soft"))
 head = frame("#E3E3E3")
 for (a, e), x in ((C1, 140), (C2, 270), (C3, 440)):
-    g.put(a, e, 1, 2, [line1(x, x + 5, 548, 552)], head, bold=True, line=1300)
+    g.put(a, e, 1, 2, [line1(x, x + 5, 548, 552)], head, bold=True, line=1280)
 g.put(X0, X1, last, last + 1, [], frame(bottom="soft", left="soft", right="soft"))
 hatch = frame("#EEEEEE", hatch="#DCDCDC")
 tab = frame(top="strong")

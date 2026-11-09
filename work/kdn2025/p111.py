@@ -100,19 +100,24 @@ def title_row(name, number_line, line, edges, top):
     """'가. [K 매출성장] title': number, pill with a dark letter box, 14 pt title."""
     a, k0, k1, p1 = edges
     runs = runs_of(line)
-    g = Grid(name, [X0, a, k0, k1, p1, X1], [250, 1170, 230])
+    g = Grid(name, [X0, a, k0, k1, p1, X1], [100, 1450, 100])
     quiet(g, X0, a, 0, 3, [number_line], align="LEFT", line=1450, fit=False)
     tight(g, X0, 0, left=0, right=0)
     pill = frame(TITLE)
     g.put(a, k0, 0, 3, [], pill)
-    g.put(k0, k1, 0, 1, [], pill)
-    quiet(g, k0, k1, 1, 2, [[(t, s, b, WHITE) for t, s, b, _ in runs[:1]]], frame("#3E3E3E"), line=900,
+    # K, pill word and title all sit in the middle sub-row so they read in PDF order
+    for x0, x1 in ((k0, k1), (k1, p1), (p1, X1)):
+        fill = pill if x1 != X1 else "1"
+        for r in (0, 2):
+            quiet(g, x0, x1, r, r + 1, "", fill, size=100, line=100, fit=False)
+            tight(g, x0, r, top=0, bottom=0)
+    quiet(g, k0, k1, 1, 2, [[(t, s, b, WHITE) for t, s, b, _ in runs[:1]]], frame("#3E3E3E"), line=1000,
           fit=False)
     tight(g, k0, 1, left=0, right=0, top=0, bottom=0)
-    g.put(k0, k1, 2, 3, [], pill)
-    g.put(k1, p1, 0, 3, [strip_runs(runs[1:2])], pill, align="LEFT", line=1250)
-    tight(g, k1, 0, left=150, right=60)
-    g.put(p1, X1, 0, 3, [strip_runs(runs[2:])], align="LEFT", line=1450)
+    quiet(g, k1, p1, 1, 2, [strip_runs(runs[1:2])], pill, align="LEFT", line=1250)
+    tight(g, k1, 1, left=150, right=60, top=0, bottom=0)
+    quiet(g, p1, X1, 1, 2, [strip_runs(runs[2:])], align="LEFT", line=1450)
+    tight(g, p1, 1, top=0, bottom=0)
     block(g, top)
 
 
@@ -158,8 +163,10 @@ def effort(name, cols, hs, label_ys, rows_y, pitch, top, arrow):
         tight(g, t0, 4, left=0, right=0, top=0, bottom=0)
         g.put(t0, t1, 5, 6, [], band)
         text = [(t, s, bb, WHITE) for t, s, bb, _ in strip_runs(runs[1:])]
-        g.put(t1, b, 3, 6, [text], frame(DIR, right="mid"), align="LEFT", line=1250)
-        tight(g, t1, 3, left=120)
+        g.put(t1, b, 3, 4, [], frame(DIR, right="mid"))
+        quiet(g, t1, b, 4, 5, [text], frame(DIR, right="mid"), align="LEFT", line=1250)
+        tight(g, t1, 4, left=120, top=0, bottom=0)
+        g.put(t1, b, 5, 6, [], frame(DIR, right="mid"))
         # sub-headings and bullets
         g.put(a, b, 6, 7, [line1(a, b, *h1)], frame(HATCH, hatch="#E0E0E0", **side), line=1300)
         g.put(a, b, 7, 8, hang(lines_in(a, b, *b1), base, arrow), frame(**side), align="LEFT", line=pitch)

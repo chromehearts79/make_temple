@@ -121,7 +121,7 @@ groups = [
     dict(pill=(70, 75, 373, 377), label=(60, 115, 386, 420), need=(160, 165, 377, 381), ai=398, mg=415,
          tagged=(433, 440, 379, 383), result=(430, 445, 394, 415)),
     dict(pill=(75, 80, 449, 452), label=(60, 115, 462, 480), need=(158, 162, 445, 449), ai=466, mg=483,
-         result=(440, 460, 446, 482), bold=True)]
+         result=(440, 460, 446, 482))]
 lab = frame(LABEL)
 for k, d in enumerate(groups):
     b = 1 + 11 * k                                   # first row of the group
@@ -166,10 +166,10 @@ for a, t0, t1, lab_end, e in (LEFT, RIGHT):
     head = line1(t0 + 2, t0 + 8, 561, 565)
     g.put(a, t0, 0, 3, [], frame(top="mid", **side_l))
     g.put(t0, t1, 0, 1, [], frame(top="mid"))
-    g.put(t0, t1, 1, 2, [runs_of(head, x1=t1)], TAG, line=950)
+    g.put(t0, t1, 1, 2, [runs_of(head, x1=t1 - 4)], TAG, line=950)
     g.put(t0, t1, 2, 3, [], "1")
     g.put(t1, e, 0, 1, [], frame(top="mid", **side_r))
-    put(g, t1, e, 1, 3, [strip_runs(runs_of(head, x0=t1))], frame(**side_r), align="LEFT", top=True, line=1260)
+    put(g, t1, e, 1, 3, [strip_runs(runs_of(head, x0=t1 - 4))], frame(**side_r), align="LEFT", top=True, line=1260)
     g.put(a, e, 3, 4, [line1(x, x + 20, 585, 590)], frame("#EBEBEB", hatch="#DEDEDE", **side_l, **side_r))
     g.put(a, e, 4, 5, "▼", frame(**side_l, **side_r), size=600, color="#555555", line=700, fit=False)
     g.put(a, e, 5, 6, [line1(x, x + 25, 615, 620)], frame("#D3D3D3", **side_l, **side_r))

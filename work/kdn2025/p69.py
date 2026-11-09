@@ -169,10 +169,11 @@ for k, (a, e, split) in enumerate(ROWS):
         g.put(CX[2], CX[3], r, r + 1, mid, frame(GRAY), align="LEFT", line=1660)
     else:
         t0, t1 = TAGS[k]
-        lead, tagged = mid[:-1], mid[-1]
         line = [l for l in lines_in(189, 388, a, e) if l["bbox"][1] > a + split[0] / 100 - 6][0]
-        g.put(CX[2], CX[3], r, r + 1, lead, frame(GRAY), align="LEFT", line=1660)
-        g.put(CX[2], t0, r + 1, r + 2, [runs_of(line, x1=t0)], frame(GRAY), align="LEFT", line=1300)
+        head = [s for s in line["spans"] if s["bbox"][0] < t0]
+        lead = [("".join(s["text"] for s in head).rstrip(), int(round(head[0]["size"] * 10)) * 10, False, INK)]
+        g.put(CX[2], CX[3], r, r + 1, mid[:-1], frame(GRAY), align="LEFT", line=1660)
+        g.put(CX[2], t0, r + 1, r + 2, [lead], frame(GRAY), align="LEFT", line=1300)
         g.put(t0, t1, r + 1, r + 2, [runs_of(line, x0=t0, x1=t1)], tag_box, line=1050, ratio=88, fit=False)
         tight(g, t0, r + 1)
         g.put(t1, CX[3], r + 1, r + 2, [strip_runs(runs_of(line, x0=t1))], frame(GRAY), align="LEFT", line=1300)

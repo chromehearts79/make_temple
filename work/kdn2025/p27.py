@@ -110,9 +110,12 @@ for (a, b), last in (((86.5, 148.5), False), ((148.5, 211.0), False), ((211.0, 2
 units = [((61.5, 111.5), "AX·DX 혁신", "IT운영사업처장"), ((123.0, 174.0), "에너지전환 혁신", "ICT기획처장"),
          ((185.5, 236.5), "ESG 혁신", "ESG경영처장"), ((248.5, 300.5), "경영시스템 혁신", "기획처장")]
 box = dict(top="soft", bottom="soft", left="soft", right="soft")
+unit_ratio = min(fit_ratio([(t, 920, False, INK)], b - a) for (a, b), *texts in units for t in texts)
 for (a, b), head, name in units:
-    g.put(a, b, r(202.5), r(217.5), head, frame(HEADFILL, **box), size=950, line=1100)
-    g.put(a, b, r(217.5), r(234.0), name, frame(**box), size=950, line=1100)
+    g.put(a, b, r(202.5), r(217.5), head, frame(HEADFILL, **box), size=920, ratio=unit_ratio, fit=False, line=1100)
+    g.put(a, b, r(217.5), r(234.0), name, frame(**box), size=920, ratio=unit_ratio, fit=False, line=1100)
+    tight(g, a, r(202.5))
+    tight(g, a, r(217.5))
 g.put(61.5, 180.0, r(242.5), r(264.0), "참여·협업", frame(right="mid"), align="RIGHT", size=1000)
 g.put(180.0, 300.5, r(242.5), r(264.0), "협의·자문", align="LEFT", size=1000)
 g.put(119.2, 180.0, r(264.0), r(273.5), [], frame(top="mid", left="mid"))

@@ -251,7 +251,7 @@ for k, (value, r0, r1) in enumerate(VALUES):
     for r in range(4, 8):
         if r < r0 or r >= r1:
             g.put(a, e, r, r + 1, [], panel)
-    g.put(a, e, r0, r1, value, panel, size=800, line=950)
+    g.put(a, e, r0, r1, value, panel, size=780, line=950, ratio=80, fit=False)
     tight(g, a, r0, 0, 0)
     g.put(a, e, 8, 9, f"{(1, 3, 6, 9, 12)[k]}월", frame("#F3F3F3", top="soft"), size=850, line=1000)
     tight(g, a, 8, 0, 0)

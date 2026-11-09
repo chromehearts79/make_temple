@@ -11,7 +11,7 @@ page number. Images, typed from 4x-6x renders:
 - 평가내용 02 chip (check icon dropped), PART box, KDN logo in the footer (typed 한전KDN㈜).
 - rows ① 전략방향 및 경영목표, ② 고려요소, ③ 편성방향 (y 343-481) and the 1차~5차 검증 steps
   (y 485-513): typed into cells on the image's own grid; ❶-❺ -> ①-⑤, the round (+) -> "+",
-  the chevrons between steps / boxes -> ▶ ◀, the row-3 arrows ➜ -> →, list dots -> ∙.
+  the chevrons between steps / boxes -> ▶ ◀, the row-3 arrows ➜ -> →, list dots -> ·.
 - the "지적사항 개선" sticker (hand icon dropped): typed in a dark cell.
 - the three 주요성과 bar charts: value cells only ('25 value -> '26 value, the dark increase tag);
   every increase checks: 453->1,203 = 750 (165.6 % ≈ 166 %), 1,213->1,493 = 280 (23.1 %),
@@ -44,8 +44,8 @@ def S(text, size=TEXT, bold=False, color=INK):
 
 
 def dot(*parts, size=TEXT):
-    """'∙ text' bullet; parts are str (body size) or (text, size) for smaller runs."""
-    runs = [S("∙", size)]
+    """'· text' bullet; parts are str (body size) or (text, size) for smaller runs."""
+    runs = [S("·", size)]
     for part in parts:
         runs.append(S(part, size) if isinstance(part, str) else S(*part))
     return runs
@@ -162,7 +162,7 @@ for (a, e), (head, value) in zip(r1, goals):
     g.put(a, e, 0, 1, head, frame(top="strong", left="mid", right="mid"), size=1100)
     g.put(a, e, 1, 2, value, frame(LIGHT), size=1050)
 factors = (("거시경제 환경", ["환율 등 금융시장 변동성 심화", "경기 둔화 및 사업비 부담 상승"]),
-           ("정책 환경", ["AI･에너지전환 등 業 연계 정책 강화", "공공기관 재무건전성 요구 확대"]),
+           ("정책 환경", ["AI · 에너지전환 등 業 연계 정책 강화", "공공기관 재무건전성 요구 확대"]),
            ("경영 전략", ["사업구조 전환을 위한 투자사업 확대", "기저사업 디지털경쟁력 강화"]))
 for k, ((a, e), (head, items)) in enumerate(zip(r2, factors)):
     g.put(a, e, 3, 4, head, frame(HEAD), size=1100, bold=True)
@@ -196,7 +196,7 @@ block(g, 343.5)
 
 # ④ 편성검증: five verification steps (image) and the 손익예산 / 투자예산 tables (text layer).
 steps = ((123.0, 181.2), (199.4, 294.2), (313.0, 407.8), (426.5, 481.2), (499.6, 554.5))
-panel = [IN, 125.4, 128.2, 174.1, 182.3, 196.3, 350.8, 417.3, 469.4, 550.8, 552.1, 555.9]
+panel = [IN, 125.4, 128.2, 174.1, 182.3, 196.3, 350.8, 417.3, 469.4, 552.1, X1]
 xs = sorted({X0, LAB} | {x for s in steps for x in s} | set(panel))
 hs = [1380, 1460, 530, 420, 1790, 1410, 1220, 1220, 1220, 430, 1790, 1410, 1220, 1220, 1220, 510]
 g = Grid("verify", xs, hs)
@@ -248,7 +248,6 @@ g = Grid("review", [X0, LAB, IN, 125.4, 128.2, 199.3, 552.1, X1], [470, 1510, 14
 label(g, 0, 5, [[S("⑤ ", 1040)] + runs_of(line1(70, 80, 691, 695))])
 g.put(IN, X1, 0, 1, [], frame(top="mid", left="mid", right="mid"))
 g.put(IN, 128.2, 1, 4, [], frame(left="mid"))
-g.put(199.3, X1, 1, 4, [], frame(right="mid")) if False else None
 for r, (ty, fill) in zip((1, 2, 3), ((678, "#C8C8C8"), (693, "#DADADA"), (708, "#DADADA"))):
     hits = lines_in(128, 200, ty - 1, ty + 3)
     if len(hits) == 1 and hits[0]["bbox"][2] > 300:          # tag and text in one PDF line

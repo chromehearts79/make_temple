@@ -175,10 +175,11 @@ tagf = frame(WHITE, **{k: "soft" for k in box})
 for lead, p0, p1, e, x in ((96.4, 108.0, 145.0, 247.9, 117.0), (262.7, 269.0, 306.5, 402.7, 277.0),
                            (None, 417.7, 451.0, X1, 423.0)):
     ln = line1(x, x + 2, 474, 477)
+    split = x + 20.0       # '1단계' / '2단계' / '3단계' span ends before this x
     if lead is not None:
         g.put(lead, p0, 0, 1, [], stage)
-    g.put(p0, p1, 0, 1, [runs_of(ln, x1=p1)], tagf, line=1000)
-    g.put(p1, e, 0, 1, [runs_of(ln, x0=p1)], stage, align="LEFT", line=1250)
+    g.put(p0, p1, 0, 1, [runs_of(ln, x1=split)], tagf, line=1000)
+    g.put(p1, e, 0, 1, [runs_of(ln, x0=split)], stage, align="LEFT", line=1250)
 for a, e in ((247.9, 262.7), (402.7, 417.7)):
     g.put(a, e, 0, 1, "▶", size=900, color="#8A8A8A", fit=False)
 for k, (a, e, x) in enumerate(((96.4, 250.9, 99.0), (250.9, 405.4, 253.0), (405.4, X1, 408.0))):
@@ -223,8 +224,6 @@ for ln in lines_in(180, 185, 584, 740):
     tight(g, T1, r(y0))
     g.put(T2, T3, r(y0), r(y1), [runs_of(ln, x0=199.5)], frame(bottom="soft" if y1 in group_end else None),
           align="LEFT", line=1250)
-    if y1 in group_end:   # the tag cell above the rule carries no bottom line of its own
-        pass
 for y0, y1, last in ((582.0, 686.7, False), (686.7, 721.5, False), (721.5, 741.0, True)):
     lines = lines_in(420, 440, y0 + 1, y1)
     g.put(T3, X1, r(y0), r(y1), [indent(ln, 422.5) for ln in lines],

@@ -116,7 +116,7 @@ for k, (y0, y1, y) in enumerate(items):
     yput(g, 112.0, 156.0, y0, y1, [[(NUM[k] + " ", 1090, True, INK)] + runs_of(line1(127, 130, y, y + 3))],
          frame("#EBEBEB", hatch="#DCDCDC", **edge), line=1250)
     yput(g, 159.5, X1, y0, y1, [line1(160, 162, y, y + 3)], frame(**edge), align="LEFT", line=1250)
-yput(g, 112.0, X1, 305.1, 315.5, "▼", size=1000, color="#5A5A5A", line=900, fit=False)
+yput(g, 112.0, X1, 305.1, 315.5, "▼", size=1000, color="#5A5A5A", line=860, fit=False)
 # 시사점: the black circled numbers and the circled arrow are images; the brackets are text.
 yput(g, X0, 112.0, 315.5, 356.0, [line1(65, 70, 336, 340)], frame("#CFCFCF"), bold=True)
 groups = [("①,②,③,⑥", 185, 136), ("②,④,⑥", 325, 270), ("②,⑤,⑥", 473, 422)]

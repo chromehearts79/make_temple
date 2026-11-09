@@ -126,7 +126,7 @@ heading("title-ga", line1(55, 60, 293, 297), 294.6)
 xs = [X0, 88.0, 90.7, 96.5, 238.4, 241.0, 351.2, 376.2, 383.0, 388.6, 404.1, X1]
 g = Grid("community", xs, [2150, 2040, 1750, 1110, 2040, 4100])
 g.put(X0, 88.0, 0, 3, lines_in(55, 70, 333, 362), frame(LABEL, top="mid"), bold=True)
-g.put(X0, 88.0, 3, 4, "+", size=1100, bold=True, color="#7A7A7A")
+g.put(X0, 88.0, 3, 4, "+", size=900, bold=True, color="#7A7A7A", line=900)
 g.put(X0, 88.0, 4, 6, lines_in(60, 70, 396, 438), frame(LABEL, bottom="mid"), bold=True)
 g.put(90.7, 351.2, 0, 1, [line1(95, 100, 319, 323)], frame(top="soft", left="soft"), align="LEFT")
 g.put(351.2, 376.2, 0, 1, "신규", frame("#3C3C3C"), size=860, bold=True, color=WHITE, line=1000)
@@ -153,12 +153,12 @@ block(g, 316.1)
 heading("title-na", line1(55, 60, 457, 461), 458.6, tag=[[("Best Practice", 860, True, WHITE)]],
         tag_x=453.6, tag_w=60.0)
 
-xs = [X0, 113.4, 132.2, 299.3, 313.1, 333.2, 352.0, X1]
+xs = [X0, 111.0, 133.5, 299.3, 313.1, 333.2, 352.0, X1]
 g = Grid("supplier", xs, [2160, 3400])
 head = line1(110, 120, 483, 487)
-g.put(X0, 113.4, 0, 1, [], frame("#E2E2E2", top="mid", left="mid"))
-g.put(113.4, 132.2, 0, 1, [runs_of(head, x1=132.0)], frame(WHITE, **BOX))
-g.put(132.2, 299.3, 0, 1, [strip_runs(runs_of(head, x0=132.0))], frame("#E2E2E2", top="mid", right="mid"), align="LEFT")
+g.put(X0, 111.0, 0, 1, [], frame("#E2E2E2", top="mid", left="mid"))
+g.put(111.0, 133.5, 0, 1, [runs_of(head, x1=132.0)], frame(WHITE, **BOX))
+g.put(133.5, 299.3, 0, 1, [strip_runs(runs_of(head, x0=132.0))], frame("#E2E2E2", top="mid", right="mid"), align="LEFT")
 head = line1(330, 340, 483, 487)
 g.put(313.1, 333.2, 0, 1, [], frame("#707070", top="mid", left="mid"))
 g.put(333.2, 352.0, 0, 1, [runs_of(head, WHITE, x1=352.0)], frame("#333333"))

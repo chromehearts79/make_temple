@@ -481,7 +481,8 @@ def render(data):
                     users.setdefault(a, []).append(where)
 
     out = [f"# {ind['지표명']} — 실적 스토리라인", "",
-           f"> {data.get('보고서', '')} · {ind.get('범주', '')} · 가중치 {ind.get('가중치', '')} · "
+           f"> {data.get('보고서', '')} · {' > '.join(x for x in (ind.get('범주'), ind.get('평가지표'), ind.get('지표명')) if x)} · "
+           f"가중치 {ind.get('가중치', '')} · "
            f"{ind.get('지표성격', '')} · {ind.get('평가방법', '')}  ",
            f"> **지표정의** {ind.get('지표정의', '')}", ""]
 

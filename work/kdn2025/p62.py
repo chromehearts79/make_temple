@@ -88,13 +88,12 @@ block(g, 32.0)
 section_band("sec3", line1(64, 70, 72, 78), line1(90, 95, 73, 78), 71.0)
 heading("title-3ga", line1(55, 60, 100, 105), 100.0, "지적사항 개선", 503.5)
 
-C1 = (428.0, 446.0, 468.0, 490.5)
-C2 = (493.5, 512.0, 533.5, X1)
+C1 = (428.0, 444.5, 459.2, 474.0, 490.5)      # chart: edge | tag | half | tag | edge
+C2 = (493.5, 510.0, 524.6, 539.1, X1)
 xs = [X0, 75.0, 127.5, 131.0, 416.0, 427.0, *C1, *C2]
-groups = ((121.8, [1300, 1200, 600, 1100, 1420]), (178.0, [1250, 1200, 600, 1050, 1400]),
-          (233.0, [1300, 1200, 600, 1100, 1380]))
+groups = ((121.8, [1100, 1100, 1000, 1000, 1420]), (178.0, [1100, 1100, 900, 1000, 1400]),
+          (233.0, [1100, 1100, 1000, 1000, 1380]))
 g = Grid("safety", xs, [h for _, hs in groups for h in hs])
-label = frame(LIGHT, right="soft")
 g.put(X0, 75.0, 0, 10, [line1(60, 65, 162, 168), line1(60, 65, 175, 180)],
       frame("#D9D9D9", bottom="soft", right="dot"), bold=True, line=1320)
 g.put(X0, 75.0, 10, 15, [line1(60, 65, 248, 253), line1(60, 65, 261, 266)], frame("#D9D9D9"), bold=True,
@@ -108,52 +107,42 @@ for k, (y0, y1) in enumerate(((122, 177), (178, 232), (233, 288))):
     g.put(131.0, 416.0, 5 * k, 5 * k + 5, hang(lines_in(130, 140, y0, y1), 132.8),
           frame(bottom="soft" if k < 2 else None), align="LEFT", line=1540)
 g.put(416.0, 427.0, 0, 5, [], frame("#EFEFEF"))
-g.put(416.0, 427.0, 5, 10, "▶", frame("#EFEFEF"), size=900, color="#9A9A9A")
+g.put(416.0, 427.0, 5, 10, "▶", frame("#EFEFEF"), size=900, color="#9A9A9A", fit=False)
 g.put(416.0, 427.0, 10, 15, [], frame("#EFEFEF"))
 
-# (before, before_row), (tag, tag_row), (after, after_row), years, caption source line + x range
+# Value charts (image): tag on top, '24 | '25 values, axis, years, caption from the text layer.
 charts = (
-    (0, C1, ("15명", 1), ("7명", 0), ("22명", 0), ("’24년", "’25년"), (163, 167, None, 492)),
-    (0, C2, ("2개소", 1), ("5개소", 0), ("7개소", 0), ("’24년", "’25년"), (163, 167, 492, None)),
-    (1, C1, ("3.89점", 0), ("0.08점", 0), ("3.97점", 0), ("’24년", "’25년"), (218, 222, None, None)),
-    (1, C2, ("3.79점", 1), ("0.2점", 0), ("3.99점", 0), ("’24년", "’25년"), (218, 222, None, None)),
-    (2, C1, ("16.1%", 0), ("3.8%p", 0), ("12.3%", 1), ("’24년", "’25년"), (273, 277, None, None)),
-    (2, C2, ("17.4%", 0), ("3.6%p", 1), ("13.8%", 1), ("그룹사", "KDN"), (273, 277, None, None)))
-for k, (a, b, c, e), (before, rb), (rise, rt), (after, ra), (y24, y25), (cy0, cy1, cx0, cx1) in charts:
+    (0, C1, "15명", "7명", "22명", ("’24년", "’25년"), (163, 167, None, 492)),
+    (0, C2, "2개소", "5개소", "7개소", ("’24년", "’25년"), (163, 167, 492, None)),
+    (1, C1, "3.89점", "0.08점", "3.97점", ("’24년", "’25년"), (218, 222, None, None)),
+    (1, C2, "3.79점", "0.2점", "3.99점", ("’24년", "’25년"), (218, 222, None, None)),
+    (2, C1, "16.1%", "3.8%p", "12.3%", ("’24년", "’25년"), (273, 277, None, None)),
+    (2, C2, "17.4%", "3.6%p", "13.8%", ("그룹사", "KDN"), (273, 277, None, None)))
+for k, (a, b, m, c, e), before, rise, after, (y24, y25), (cy0, cy1, cx0, cx1) in charts:
     r = 5 * k
-    sep = "dot" if a > 490 else None
-    filled = set()
-
-    def chart_cell(x0, x1, row, content, fill=None, **kw):
-        filled.add((x0, row))
-        fill = fill or (frame(left=sep) if x0 == a else "1")
-        g.put(x0, x1, r + row, r + row + 1, content, fill, line=880, **kw)
-
-    chart_cell(a, b, rb, before, size=750)
-    chart_cell(b, c, rt, rise, TAG, size=700, bold=True, color=WHITE)
-    chart_cell(c, e, ra, after, size=750, bold=True)
-    for row in (0, 1):
-        for x0, x1 in ((a, b), (b, c), (c, e)):
-            if (x0, row) not in filled:
-                chart_cell(x0, x1, row, [])
-    g.put(a, e, r + 2, r + 3, [], frame(bottom="soft", left=sep))
-    g.put(a, b, r + 3, r + 4, y24, frame(left=sep), size=720, line=850)
-    g.put(b, c, r + 3, r + 4, [])
-    g.put(c, e, r + 3, r + 4, y25, size=720, bold=True, line=850)
-    hits = [l for l in lines_in(a - 3, e, cy0, cy1)] or lines_in(425, 500 if a < 490 else 560, cy0, cy1)
-    cap = hits[0]
-    runs = runs_of(cap, x0=cx0 if cx0 else -1e9, x1=cx1 if cx1 else 1e9)
-    g.put(a, e, r + 4, r + 5, [runs], frame("#E9E9E9", hatch="#DCDCDC", left=sep), line=1050)
+    sep = frame(left="dot") if a > 490 else "1"
+    g.put(a, b, r, r + 1, [], sep)
+    g.put(b, c, r, r + 1, rise, TAG, size=700, bold=True, color=WHITE, line=880)
+    g.put(c, e, r, r + 1, [])
+    g.put(a, m, r + 1, r + 2, before, sep, size=750, line=880)
+    g.put(m, e, r + 1, r + 2, after, size=750, bold=True, line=880)
+    g.put(a, e, r + 2, r + 3, [], frame(bottom="soft", left="dot" if a > 490 else None))
+    g.put(a, m, r + 3, r + 4, y24, sep, size=720, line=850)
+    g.put(m, e, r + 3, r + 4, y25, size=720, bold=True, line=850)
+    hits = lines_in(a - 3, e, cy0, cy1) or lines_in(425, 500 if a < 490 else 560, cy0, cy1)
+    runs = runs_of(hits[0], x0=cx0 if cx0 else -1e9, x1=cx1 if cx1 else 1e9)
+    g.put(a, e, r + 4, r + 5, [runs], frame("#E9E9E9", hatch="#DCDCDC", left="dot" if a > 490 else None),
+          line=1050)
 block(g, 121.8)
 
 # ---------------------------------------------------------------------------
 # 나. four cards: tag + quote, finding, detail (+ illustration), result band
 # ---------------------------------------------------------------------------
 heading("title-3na", line1(55, 60, 296, 301), 296.8)
-cards = ((X0, 89.5, 130.0, 180.5), (182.0, 215.5, None, 305.0), (307.0, 340.5, 389.0, 430.5),
+cards = ((X0, 89.5, 135.0, 180.5), (182.0, 215.5, None, 305.0), (307.0, 340.5, 389.0, 430.5),
          (432.5, 465.0, 524.0, X1))
 k2 = [182.0, 186.0, 210.0, 215.5, 241.0, 244.5, 268.0, 273.0, 300.0, 305.0]
-xs = sorted({X0, 89.5, 130.0, 180.5, *k2, 307.0, 340.5, 389.0, 430.5, 432.5, 465.0, 524.0, X1})
+xs = sorted({X0, 89.5, 135.0, 180.5, *k2, 307.0, 340.5, 389.0, 430.5, 432.5, 465.0, 524.0, X1})
 g = Grid("cards", xs, [2030, 1450, 1300, 2300, 450, 1900])
 for i, (a, t, p, e) in enumerate(cards):
     head = lines_in(a, a + 12, 320, 326)[0]
@@ -175,11 +164,11 @@ for i, (a, t, p, e) in enumerate(cards):
 box = frame(top="soft", bottom="soft", left="soft", right="soft")
 g.put(182.0, 186.0, 2, 4, [], frame(left="mid"))
 g.put(186.0, 210.0, 2, 3, "체결고리", box, size=700, line=820)
-g.put(210.0, 215.5, 2, 3, "▶", size=600, line=700)
+g.put(210.0, 215.5, 2, 3, "▶", size=600, line=700, fit=False)
 g.put(215.5, 241.0, 2, 3, "고정나사", frame("#6A6A6A"), size=700, color=WHITE, line=820)
 g.put(241.0, 244.5, 2, 4, [], frame(right="dot"))
 g.put(244.5, 268.0, 2, 3, "단일그립", box, size=700, line=820)
-g.put(268.0, 273.0, 2, 3, "▶", size=600, line=700)
+g.put(268.0, 273.0, 2, 3, "▶", size=600, line=700, fit=False)
 g.put(273.0, 300.0, 2, 3, "이중그립", frame("#6A6A6A"), size=700, color=WHITE, line=820)
 g.put(300.0, 305.0, 2, 4, [], frame(right="mid"))
 g.put(186.0, 241.0, 3, 4, [], frame("#E4E4E4"))
@@ -196,7 +185,7 @@ steps = ((111.0, 217.5), (221.0, 330.0), (334.0, 443.0), (447.0, X1))
 heads = ((108.0, 217.5), (231.0, 330.0), (344.0, 443.0), (456.5, X1))
 arrows = ((217.5, 231.0), (330.0, 344.0), (443.0, 456.5))
 xs = sorted({X0, 105.5, 108.0, *[x for s in steps for x in s], *[x for h in heads for x in h]})
-g = Grid("budget", xs, [2000, 1900, 500, 3200])
+g = Grid("budget", xs, [2000, 1900, 680, 3020])
 g.put(X0, 105.5, 0, 4, lines_in(58, 62, 500, 535), frame(LIGHT), bold=True, line=1320)
 shades = ("#E8E8E8", "#DEDEDE", "#D4D4D4", "#CACACA")
 for k, ((a, e), (ha, he), shade) in enumerate(zip(steps, heads, shades)):
@@ -209,9 +198,9 @@ for k, ((a, e), (ha, he), shade) in enumerate(zip(steps, heads, shades)):
           frame("#E6E6E6"), align="LEFT", line=1430)
 block(g, 482.0)
 
-g = Grid("budget-arrow", [X0, 105.5, 295.0, 318.0, X1], [1200])
+g = Grid("budget-arrow", [X0, 105.5, 295.0, 318.0, X1], [1300])
 g.put(295.0, 318.0, 0, 1, "▼", size=1000, color="#8A8A8A", line=1100)
-block(g, 562.0)
+block(g, 561.5)
 
 xs = [X0, 105.5, 108.0, 112.5, 156.0, 447.0, X1]
 g = Grid("construction", xs, [1850, 1600, 2050])

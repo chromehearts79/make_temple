@@ -13,6 +13,10 @@ SEED = Path(__file__).resolve().parents[1] / "assets" / "blank-layout-seed.zip"
 # is made equal so the glyph sits on the cell centre line (the default padding is 320/180).
 CONNECTORS = frozenset("+▶◀▲▼→←↑↓↔⇒")
 
+# Symbol-font private-use characters that PDFs carry in their text layer, mapped to the KS X 1001
+# character they show. Without the symbol font the editor draws a blank or a box.
+PUA_MAP = {"\uf09e": "·"}       # Wingdings middle dot
+
 
 def unsafe_symbols(text):
     """Non-ASCII, non-Hangul characters outside KS X 1001 (not encodable as EUC-KR).
@@ -218,6 +222,9 @@ class Layout:
         if output.suffix.lower() != ".hwpx":
             raise ValueError("Output path must end in .hwpx")
         output.parent.mkdir(parents=True, exist_ok=True)
+        for node in self.section.iter(self.q("hp:t")):
+            if node.text and any(ch in node.text for ch in PUA_MAP):
+                node.text = node.text.translate(str.maketrans(PUA_MAP))
         replacements = {"Contents/header.xml": self.header, "Contents/section0.xml": self.section}
         with ZipFile(SEED) as src, ZipFile(output, "w") as dst:
             for info in src.infolist():

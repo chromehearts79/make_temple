@@ -57,6 +57,15 @@ def titled(name, line, sticker_x, top, tag="지적사항 개선"):
     block(g, top)
 
 
+def tagcell(g, x0, x1, r, runs, fill):
+    """Small tag cell: thin symmetric padding so the tag stays on one line in its short row."""
+    width = to_x(x1) - to_x(x0)
+    ratio = min(90, int(90 * (width - 160) / 100 * 0.96 / text_width(runs, 90)))
+    g.put(x0, x1, r, r + 1, [runs], fill, line=1000, ratio=ratio, fit=False)
+    key = (r, g.xs.index(to_x(x0)))
+    g.items[key] = (*g.items[key][:7], dict(left=80, right=80, top=40, bottom=40))
+
+
 # ---------------------------------------------------------------------------
 # Page chrome (even page): PART label at the left of a rule; footer at the left.
 # ---------------------------------------------------------------------------
@@ -141,8 +150,8 @@ block(g, 298.8)
 # ---------------------------------------------------------------------------
 titled("title-na", line1(55, 60, 610, 615), 503.0, 610.6)
 xs = [X0, 113.4, 116.2, 137.8, 379.8, X1]
-groups = ((651.7, [210, 1310, 240, 1310, 210]), (684.5, [210, 1310, 240, 1310, 210]),
-          (717.3, [640, 1310, 240, 1310, 650]))
+groups = ((651.7, [270, 1230, 270, 1230, 280]), (684.5, [270, 1230, 270, 1230, 280]),
+          (717.3, [700, 1230, 270, 1230, 720]))   # pad, tag, gap, tag, pad (no row under 2.7 pt)
 g = Grid("table2", xs, [1840] + [h for _, hs in groups for h in hs])
 g.put(X0, 113.4, 0, 1, [line1(60, 100, 635, 640)], frame(HEAD, top="mid"))
 g.put(113.4, 379.8, 0, 1, [line1(220, 230, 635, 640)], frame(HEAD, top="mid"))
@@ -157,11 +166,12 @@ for k, (top, hs) in enumerate(groups):
     g.put(X0, 113.4, r, r + 5, [line1(60, 110, top, bottom)], frame(GROUP, bottom=rule))
     first, second = lines_in(115, 120, top, bottom)
     for row, line in ((r + 1, first), (r + 3, second)):
-        g.put(116.2, 137.8, row, row + 1, [runs_of(line, x1=137.0)], tag, line=1000)
-        g.put(137.8, 379.8, row, row + 1, [strip_runs(runs_of(line, x0=137.0))], align="LEFT", line=1150)
-    g.put(113.4, 379.8, r + 4, r + 5, [], frame(bottom=rule))
+        tagcell(g, 116.2, 137.8, row, runs_of(line, x1=137.0), tag)
+        g.put(137.8, 379.8, row, row + 2, [strip_runs(runs_of(line, x0=137.0))],
+              frame(bottom=rule) if row == r + 3 else "1", align="LEFT", line=1250)
+    g.put(113.4, 137.8, r + 4, r + 5, [], frame(bottom=rule))
     g.put(379.8, X1, r, r + 5, hang(lines_in(380, 556, top, bottom), 382.8),
-          frame(left="strong", right="strong", bottom="strong" if last else "soft"), align="LEFT", line=1330)
+          frame(left="strong", right="strong", bottom="strong" if last else "soft"), align="LEFT", line=1300)
 block(g, 633.3)
 
 # 주요성과

@@ -104,7 +104,7 @@ g.put(376.0, X1, 0, 1, [line1(375, 385, 35, 40)], align="RIGHT")
 block(g, 32.0)
 
 # 평가내용 02 band: dark chip (image, check mark dropped) over a hatched band, two-line title.
-g = Grid("band", [X0, 124.0, X1], [1450, 2690])
+g = Grid("band", [X0, 124.0, X1], [1500, 2640])
 g.put(X0, 124.0, 0, 1, [[("평가내용 ", 800, True, WHITE), ("02", 1350, True, WHITE)]], frame("#565656", top="strong"),
       line=1300)
 g.put(X0, 124.0, 1, 2, [], frame("#E9E9E9", bottom="soft", left="soft", hatch="#DADADA"))

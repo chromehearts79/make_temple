@@ -19,9 +19,13 @@ REQUIRED = {
 DECORATIONS = r"[\s➜①-⑩❶-❾→▶▼■□▣◎]"
 
 
+# Symbol-font private-use characters in PDF text and the KS X 1001 character the builder writes.
+PUA_MAP = str.maketrans({"\uf09e": "·"})
+
+
 def normalized(text):
     # Runs of "··" are TOC dot leaders; recipes draw them as a dotted cell border instead.
-    text = re.sub(r"·{2,}", "", unicodedata.normalize("NFC", text))
+    text = re.sub(r"·{2,}", "", unicodedata.normalize("NFC", text).translate(PUA_MAP))
     return re.sub(DECORATIONS, "", text)
 
 

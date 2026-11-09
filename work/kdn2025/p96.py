@@ -140,7 +140,7 @@ cols4 = ((107.6, 219.5, 113.5), (219.5, 331.5, 225.1), (331.5, 443.5, 336.6), (4
 for k, (a, e, base) in enumerate(cols4):
     sides = dict(left="mid" if k == 0 else "soft", right="mid" if k == 3 else None)
     top, sub = (line1(a, e, 242, 246), line1(a, e, 256, 260))
-    g.put(a, e, 5, 6, [[("①②③④"[k] + " ", top["spans"][0]["size"] * 100 // 10 * 10, False, INK)]
+    g.put(a, e, 5, 6, [[("①②③④"[k] + " ", int(round(top["spans"][0]["size"] * 10)) * 10, False, INK)]
                        + runs_of(top), runs_of(sub)], frame("#E1E1E1", **sides), line=1420)
     g.put(a, e, 6, 7, hang(lines_in(a, e, 273, 295), base),
           frame(left="mid" if k == 0 else "dot", right="mid" if k == 3 else None), align="LEFT", line=1550)
@@ -159,7 +159,7 @@ for a, t0, t1, e, tx in boxes:
     chip(g, t0, t1, 10, 11, [runs_of(head, x1=t1 - 1.0)], BOX)
     g.put(t1, e, 10, 11, [strip_runs(runs_of(head, x0=t1 - 1.0))], frame(top="mid", right="mid"), align="LEFT")
     g.put(a, e, 11, 12, [line1(a, e, 355, 359)], frame(left="mid", right="mid"))
-    g.put(a, e, 12, 13, "▼", frame(left="mid", right="mid"), size=600, color="#9A9A9A", line=560)
+    g.put(a, e, 12, 13, "▼", frame(left="mid", right="mid"), size=600, color="#9A9A9A", line=420)
     g.put(a, e, 13, 14, [line1(a, e, 380, 384)], frame("#E6E6E6", left="mid", right="mid"))
     g.put(a, e, 14, 15, [], frame(left="mid", right="mid", bottom="mid"))
 block(g, 166.6)
@@ -175,7 +175,7 @@ heading("title-na", line1(55, 60, 423, 427), 422.0)
 
 xs = [X0, 106.0, 108.0, 136.0, 257.0, 275.5, 280.0, 283.0, 293.5, 312.0, 318.5, 452.0, 469.5, 511.0, X1]
 #      0 head 1 pad 2 cardh 3 bul1 4 bul2 5 sum  6 pad 7 cardh 8 bul1 9 bul2 10 sum
-hs = [1920, 500, 1590, 1380, 2150, 2450, 500, 1600, 1000, 2500, 2580]
+hs = [1920, 500, 1590, 1460, 2070, 2450, 500, 1600, 1460, 2040, 2580]
 g = Grid("culture", xs, hs)
 g.put(X0, X1, 0, 1, [line1(220, 225, 448, 452)], frame(HEADC, top="mid", left="mid", right="mid"), bold=True)
 side = frame("#EBEBEB", left="mid")
@@ -208,11 +208,14 @@ for r, y, fill, color in ((8, 572.0, BOX, INK), (9, 587.7, frame("#8C8C8C"), WHI
     g.put(283.0, 293.5, r, r + 1, [runs_of(l, x1=293.0)], align="RIGHT", line=1300)
     chip(g, 293.5, 312.0, r, r + 1, [runs_of(l, color, x0=293.0, x1=311.0)], fill)
     g.put(312.0, 452.0, r, r + 1, [strip_runs(runs_of(l, x0=311.0))], align="LEFT", line=1300)
-g.put(108.0, 280.0, 10, 11, [line1(110, 120, 606, 610)], HATCH)
-g.put(283.0, 452.0, 10, 11, [line1(290, 295, 606, 610)], HATCH)
+HATCH_LOW = frame("#E6E6E6", hatch="#D6D6D6", bottom="mid")
+g.put(108.0, 280.0, 10, 11, [line1(110, 120, 606, 610)], HATCH_LOW)
+g.put(283.0, 452.0, 10, 11, [line1(290, 295, 606, 610)], HATCH_LOW)
+g.put(106.0, 108.0, 10, 11, [], frame(bottom="mid"))
+g.put(280.0, 283.0, 10, 11, [], frame(bottom="mid"))
 # chevrons and the right-hand panels (bar chart labels typed from the image)
 g.put(452.0, 469.5, 1, 6, "▶", size=1300, color="#C8C8C8")
-g.put(452.0, 469.5, 6, 11, "▶", size=1300, color="#C8C8C8")
+g.put(452.0, 469.5, 6, 11, "▶", frame(bottom="mid"), size=1300, color="#C8C8C8")
 g.put(469.5, X1, 1, 4, lines_in(475, 545, 466, 490), frame("#E4E4E4", right="mid"), line=1320)
 g.put(469.5, 511.0, 4, 5, [[("539건", 900, False, INK)]], align="CENTER")
 g.put(511.0, X1, 4, 5, [[("3,441건", 900, True, INK)]], frame(right="mid"))

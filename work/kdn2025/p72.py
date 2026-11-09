@@ -79,7 +79,7 @@ section_band("sec3", line1(60, 70, 72, 76), line1(90, 95, 73, 77), 70.9)
 g = Grid("background", [X0, 111.7, X1], [3140])
 g.put(X0, 111.7, 0, 1, [line1(65, 70, 112, 116)], frame("#D5D5D5", top="mid", bottom="mid", left="mid"))
 g.put(111.7, X1, 0, 1, lines_in(115, 120, 104, 125), frame(top="mid", bottom="mid", right="mid"), align="LEFT",
-      line=1500)
+      line=1490)
 block(g, 103.0)
 
 # ---------------------------------------------------------------------------
@@ -99,14 +99,14 @@ g.put(470.0, X1, 1, 2, [], frame(right="mid", bottom="mid"))      # illustration
 block(g, 175.0)
 
 g = Grid("thesis", [X0, X1], [1350, 1250])
-g.put(X0, X1, 0, 1, [line1(85, 90, 248, 252)], line=1200)
+g.put(X0, X1, 0, 1, [line1(85, 90, 248, 252)], line=1190)
 g.put(X0, X1, 1, 2, "▼", size=900, color="#8A8A8A", line=1000, fit=False)
 block(g, 247.5)
 
 # Table: label (pill + lines) | 추진 내용 (gray pill, AI 예측 / 통합관리 tagged lines) | 추진성과
-xs = [X0, 68.7, 106.0, 119.3, 124.3, 159.3, 427.7, 431.0, 461.0, X1]
-GROUP = [None, 450, 1150, 400, 400, 1300, 150, 150, 1300, 200, None]
-pads = ((770, 570), (730, 600), (700, 630))
+xs = [X0, 68.7, 106.0, 119.3, 124.3, 159.3, 427.7, 431.0, 465.0, X1]
+GROUP = [None, 450, 1150, 400, 400, 1300, 300, 1300, 300, None]    # rows stay >= 2.6 pt (cell padding + 1 pt line)
+pads = ((720, 520), (680, 550), (650, 580))
 hs = [1830]
 for top_pad, bottom_pad in pads:
     hs += [top_pad] + GROUP[1:-1] + [bottom_pad]
@@ -124,29 +124,29 @@ groups = [
          result=(440, 460, 446, 482))]
 lab = frame(LABEL)
 for k, d in enumerate(groups):
-    b = 1 + 11 * k                                   # first row of the group
+    b = 1 + 10 * k                                   # first row of the group
     sep = dict(bottom="soft")
     g.put(X0, 119.3, b, b + 2, [], lab)
     g.put(X0, 68.7, b + 2, b + 3, [], lab)
     g.put(68.7, 106.0, b + 2, b + 3, [line1(*d["pill"])], TAG, line=950)
     g.put(106.0, 119.3, b + 2, b + 3, [], lab)
-    g.put(X0, 119.3, b + 3, b + 11, lines_in(*d["label"]), frame(LABEL, **sep), line=1350)
+    g.put(X0, 119.3, b + 3, b + 10, lines_in(*d["label"]), frame(LABEL, **sep), line=1350)
     g.put(124.3, 427.7, b + 1, b + 4, [line1(*d["need"])], frame("#DADADA"))
-    for r, y in ((b + 5, d["ai"]), (b + 8, d["mg"])):
+    for r, y in ((b + 5, d["ai"]), (b + 7, d["mg"])):
         ln = line1(120, 125, y, y + 3)
         g.put(124.3, 159.3, r, r + 1, [runs_of(ln, x1=158.0)], TAG, line=950)
         put(g, 159.3, 431.0, r, r + 2, [strip_runs(runs_of(ln, x0=158.0))], align="LEFT", top=True, line=1260)
-    g.put(119.3, 431.0, b + 10, b + 11, [], frame(**sep))
+    g.put(119.3, 431.0, b + 9, b + 10, [], frame(**sep))
     if "tagged" in d:
         ln = line1(*d["tagged"])
         g.put(431.0, X1, b, b + 2, [], frame(left="soft"))
-        g.put(431.0, 461.0, b + 2, b + 3, [runs_of(ln, x1=466.0)], TAG, line=950)
-        put(g, 461.0, X1, b + 2, b + 4, [strip_runs(runs_of(ln, x0=466.0))], align="LEFT", top=True, line=1260)
-        g.put(431.0, 461.0, b + 3, b + 4, [], frame(left="soft"))
-        g.put(431.0, X1, b + 4, b + 10, lines_in(*d["result"]), frame(left="soft"), line=1500)
-        g.put(431.0, X1, b + 10, b + 11, [], frame(left="soft", **sep))
+        g.put(431.0, 465.0, b + 2, b + 3, [runs_of(ln, x1=466.0)], TAG, line=950)
+        put(g, 465.0, X1, b + 2, b + 4, [strip_runs(runs_of(ln, x0=466.0))], align="LEFT", top=True, line=1260)
+        g.put(431.0, 465.0, b + 3, b + 4, [], frame(left="soft"))
+        g.put(431.0, X1, b + 4, b + 9, lines_in(*d["result"]), frame(left="soft"), line=1500)
+        g.put(431.0, X1, b + 9, b + 10, [], frame(left="soft", **sep))
     else:
-        g.put(431.0, X1, b, b + 11, lines_in(*d["result"]), frame(left="soft", **sep), line=1540)
+        g.put(431.0, X1, b, b + 10, lines_in(*d["result"]), frame(left="soft", **sep), line=1540)
 block(g, 280.0)
 
 # ---------------------------------------------------------------------------
@@ -154,7 +154,7 @@ block(g, 280.0)
 # ---------------------------------------------------------------------------
 titled("title-na", line1(55, 60, 518, 522), 487.5, 540.5, 519.0, "지적사항 개선", size=800)
 g = Grid("footnote", [X0, X1], [1300])
-g.put(X0, X1, 0, 1, [line1(55, 60, 539, 543)], align="LEFT", line=1150)
+g.put(X0, X1, 0, 1, [line1(55, 60, 539, 543)], align="LEFT", line=1140)
 block(g, 539.5)
 
 LEFT, RIGHT = (X0, 84.3, 118.7, 96.0, 304.3), (307.7, 345.4, 380.0, 347.7, X1)
@@ -171,7 +171,7 @@ for a, t0, t1, lab_end, e in (LEFT, RIGHT):
     g.put(t1, e, 0, 1, [], frame(top="mid", **side_r))
     put(g, t1, e, 1, 3, [strip_runs(runs_of(head, x0=t1 - 4))], frame(**side_r), align="LEFT", top=True, line=1260)
     g.put(a, e, 3, 4, [line1(x, x + 20, 585, 590)], frame("#EBEBEB", hatch="#DEDEDE", **side_l, **side_r))
-    g.put(a, e, 4, 5, "▼", frame(**side_l, **side_r), size=600, color="#555555", line=700, fit=False)
+    g.put(a, e, 4, 5, "▼", frame(**side_l, **side_r), size=600, color="#555555", line=680, fit=False)
     g.put(a, e, 5, 6, [line1(x, x + 25, 615, 620)], frame("#D3D3D3", **side_l, **side_r))
     for r, (y0, y1) in ((6, (638, 670)), (7, (679, 712))):
         g.put(a, lab_end, r, r + 1, lines_in(a, lab_end, y0, y1), frame(LABEL, **side_l), line=1430)

@@ -13,7 +13,7 @@ Images and how they are kept:
   16.1->12.3 = 3.8%p, 17.4 vs 13.8 = 3.6%p): value cells only, no bars.
 - 나. cards: illustrations -> photo cells; the card-2 labels 체결고리 ▶ 고정나사 / 단일그립 ▶ 이중그립
   and the card-1 caption "고압 전선 작업용 로봇팔" (image text, 4-10x render) are typed.
-- section 4 flow: the circled arrows -> ▶, chevrons -> ▼; the two ceremony photos -> photo cells.
+- section 4 flow: the circled arrows -> ▶, the big chevron -> ▼ (the three small ones are dropped); the two ceremony photos -> photo cells.
 """
 
 import sys
@@ -122,13 +122,13 @@ for k, (a, b, m, c, e), before, rise, after, (y24, y25), (cy0, cy1, cx0, cx1) in
     r = 5 * k
     sep = frame(left="dot") if a > 490 else "1"
     g.put(a, b, r, r + 1, [], sep)
-    g.put(b, c, r, r + 1, rise, TAG, size=700, bold=True, color=WHITE, line=880)
+    g.put(b, c, r, r + 1, rise, TAG, size=700, bold=True, color=WHITE, line=820)
     g.put(c, e, r, r + 1, [])
     g.put(a, m, r + 1, r + 2, before, sep, size=750, line=880)
     g.put(m, e, r + 1, r + 2, after, size=750, bold=True, line=880)
     g.put(a, e, r + 2, r + 3, [], frame(bottom="soft", left="dot" if a > 490 else None))
-    g.put(a, m, r + 3, r + 4, y24, sep, size=720, line=850)
-    g.put(m, e, r + 3, r + 4, y25, size=720, bold=True, line=850)
+    g.put(a, m, r + 3, r + 4, y24, sep, size=680, line=780)
+    g.put(m, e, r + 3, r + 4, y25, size=680, bold=True, line=780)
     hits = lines_in(a - 3, e, cy0, cy1) or lines_in(425, 500 if a < 490 else 560, cy0, cy1)
     runs = runs_of(hits[0], x0=cx0 if cx0 else -1e9, x1=cx1 if cx1 else 1e9)
     g.put(a, e, r + 4, r + 5, [runs], frame("#E9E9E9", hatch="#DCDCDC", left="dot" if a > 490 else None),
@@ -185,7 +185,7 @@ steps = ((111.0, 217.5), (221.0, 330.0), (334.0, 443.0), (447.0, X1))
 heads = ((108.0, 217.5), (231.0, 330.0), (344.0, 443.0), (456.5, X1))
 arrows = ((217.5, 231.0), (330.0, 344.0), (443.0, 456.5))
 xs = sorted({X0, 105.5, 108.0, *[x for s in steps for x in s], *[x for h in heads for x in h]})
-g = Grid("budget", xs, [2000, 1900, 680, 3020])
+g = Grid("budget", xs, [2000, 1900, 400, 3300])
 g.put(X0, 105.5, 0, 4, lines_in(58, 62, 500, 535), frame(LIGHT), bold=True, line=1320)
 shades = ("#E8E8E8", "#DEDEDE", "#D4D4D4", "#CACACA")
 for k, ((a, e), (ha, he), shade) in enumerate(zip(steps, heads, shades)):
@@ -193,9 +193,8 @@ for k, ((a, e), (ha, he), shade) in enumerate(zip(steps, heads, shades)):
     if k < 3:
         g.put(*arrows[k], 0, 1, "▶", frame(shade), size=800, color="#8A8A8A")
     g.put(a, e, 1, 2, [line1(a - 5, e, 505, 510)], frame(left="soft" if k else None))
-    g.put(a, e, 2, 3, "▼", size=500, color="#9A9A9A", line=500)
     g.put(a, e, 3, 4, hang(lines_in(a - 2, e, 527, 548), {0: 110.8, 1: 223.7, 2: 336.7, 3: 449.6}[k]),
-          frame("#E6E6E6"), align="LEFT", line=1430)
+          frame("#E6E6E6"), align="LEFT", line=1380)
 block(g, 482.0)
 
 g = Grid("budget-arrow", [X0, 105.5, 295.0, 318.0, X1], [1300])
@@ -223,18 +222,18 @@ block(g, 580.0)
 # ---------------------------------------------------------------------------
 heading("title-4na", line1(55, 60, 643, 648), 642.8)
 xs = [X0, 105.5, 108.0, 176.5, 249.0, 328.5, 333.0, 414.0, X1]
-g = Grid("partners", xs, [1950, 5050, 200, 2300])
+g = Grid("partners", xs, [1950, 5050, 2500])
 g.put(X0, 105.5, 0, 4, lines_in(58, 62, 690, 725), frame(LIGHT), bold=True, line=1320)
 g.put(108.0, 328.5, 0, 1, [line1(120, 130, 666, 672)], frame("#E0E0E0", top="mid", left="mid", right="mid"))
 g.put(333.0, X1, 0, 1, [line1(340, 350, 666, 672)], frame("#E0E0E0", top="mid", left="mid", right="mid"))
 g.put(108.0, 249.0, 1, 2, hang(lines_in(110, 120, 684, 730), 113.6), frame(left="mid", bottom="mid"),
-      align="LEFT", line=1540)
+      align="LEFT", line=1480)
 g.put(249.0, 328.5, 1, 2, [], frame("#E4E4E4", right="mid", bottom="mid"))
 g.put(333.0, 414.0, 1, 2, [], frame("#E4E4E4", left="mid", bottom="mid"))
 g.put(414.0, X1, 1, 2, hang(lines_in(412, 435, 684, 730), 415.4), frame(right="mid", bottom="mid"),
-      align="LEFT", line=1540)
-g.put(108.0, 176.5, 3, 4, [line1(110, 115, 740, 745)], frame(WHITE, top="soft", bottom="soft", left="soft", right="soft"))
-g.put(176.5, X1, 3, 4, [line1(176, 180, 737, 742)], frame("#E9E9E9"), align="LEFT")
+      align="LEFT", line=1480)
+g.put(108.0, 176.5, 2, 3, [line1(110, 115, 740, 745)], frame(WHITE, top="soft", bottom="soft", left="soft", right="soft"))
+g.put(176.5, X1, 2, 3, [line1(176, 180, 737, 742)], frame("#E9E9E9"), align="LEFT")
 block(g, 664.0)
 
 g = Grid("result", [X0, 112.5, X1], [3700])

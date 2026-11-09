@@ -43,7 +43,15 @@ def body_lines(x0, x1, y0, y1, indent="  "):
 
 
 def tag(g, x0, x1, r0, r1, content, fill, ratio=88, **kw):
-    """Small tag / pill cell: no 장평 squeeze for the default 5 pt padding, 0.6 pt side padding."""
+    """Small tag / pill cell: 0.6 pt side padding instead of 5 pt, 장평 fitted to that width."""
+    items = content if isinstance(content, list) else [content]
+    inner = (to_x(x1) - to_x(x0) - 120) / 100 * 0.96
+    for item in items:
+        runs = [(item, kw.get("size", 1080))] if isinstance(item, str) else (
+            runs_of(item) if isinstance(item, dict) else item)
+        need = text_width(runs, ratio)
+        if need > inner:
+            ratio = int(ratio * inner / need)
     g.put(x0, x1, r0, r1, content, fill, fit=False, ratio=ratio, **kw)
     key = (r0, g.xs.index(to_x(x0)))
     g.items[key] = g.items[key][:7] + (dict(left=60, right=60),)

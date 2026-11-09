@@ -55,7 +55,9 @@ def section_band(name, num_line, title_line, top):
 def pill_title(name, number, badge, title, edges, top):
     """'가. (채용) title': number, light pill with the badge word, 14pt title (runs lists)."""
     g = Grid(name, [X0, *edges, X1], [1650])
-    g.put(X0, edges[0], 0, 1, [number], align="LEFT", line=1450)
+    g.put(X0, edges[0], 0, 1, [number], align="LEFT", line=1450, ratio=85, fit=False)
+    key = (0, 0)   # the number touches its pill in the PDF: no side padding
+    g.items[key] = g.items[key][:7] + (dict(left=0, right=0),)
     g.put(edges[0], edges[1], 0, 1, [badge], pill)
     g.put(edges[1], X1, 0, 1, [title], align="LEFT", line=1450)
     block(g, top)
@@ -152,7 +154,7 @@ g.put(113.4, 377.2, R(333.9), R(390.1), lines_in(115, 118, 335, 380), frame(left
 g.put(394.0, X1, R(333.9), R(390.1), hang(lines_in(396, 410, 335, 385), 397.0), right_cell(False), align="LEFT",
       line=1300)
 g.put(X0, 113.4, R(390.1), R(433.2), lines_in(60, 75, 395, 420), label, line=1430)
-g.put(113.4, 344.2, R(390.1), R(404.4), [line1(115, 118, 392, 395)], frame(left="soft"), align="LEFT")
+g.put(113.4, 344.2, R(390.1), R(404.4), [line1(115, 118, 392, 395)], frame(left="soft"), align="LEFT", line=1250)
 tag(g, 344.2, 369.1, R(390.1), R(404.4), "신규")
 g.put(113.4, 377.2, R(404.4), R(433.2), hang(lines_in(115, 118, 405, 425), 116.4), frame(left="soft", bottom="soft"),
       align="LEFT", line=1220)
@@ -165,7 +167,7 @@ pill_title("title-na", runs_of(line1(55, 60, 444, 448)), runs_of(line1(88, 90, 4
            strip_runs(runs_of(line1(119, 120, 444, 448))), [76.9, 120.1], 443.6)
 
 xs = [X0, 113.4, 117.0, 243.5, 247.5, 322.1, 332.5, 357.4, 374.2, 377.2, 394.0, X1]
-R = Rows([465.0, 483.4, 497.0, 514.4, 545.3, 560.5, 563.5, 579.5, 624.5, 627.1])
+R = Rows([465.0, 483.4, 498.0, 514.4, 545.3, 560.5, 563.5, 579.5, 624.5, 627.1])
 g = Grid("leaders", xs, R.hs)
 g.put(X0, 113.4, 0, 1, [line1(70, 72, 467, 471)], frame(HEAD, **LEFT_HEAD), bold=True)
 g.put(113.4, 377.2, 0, 1, [line1(225, 226, 467, 471)], frame(HEAD, left="soft", **LEFT_HEAD), bold=True)
@@ -173,9 +175,9 @@ g.put(394.0, X1, 0, 1, [runs_of(line1(454, 455, 467, 471), WHITE)], RIGHT_HEAD, 
 g.put(377.2, 394.0, R(483.4), R(627.1), "▶", **CHEVRON)
 # 여성 리더십 최고위 과정
 g.put(X0, 113.4, R(483.4), R(514.4), lines_in(58, 112, 485, 505), label, line=1430)
-g.put(113.4, 332.5, R(483.4), R(497.0), [line1(115, 118, 485, 489)], frame(left="soft"), align="LEFT")
-tag(g, 332.5, 357.4, R(483.4), R(497.0), "신규")
-g.put(113.4, 377.2, R(497.0), R(514.4), [line1(115, 118, 497, 500)], frame(left="soft", bottom="soft"), align="LEFT")
+g.put(113.4, 332.5, R(483.4), R(498.0), [line1(115, 118, 485, 489)], frame(left="soft"), align="LEFT")
+tag(g, 332.5, 357.4, R(483.4), R(498.0), "신규")
+g.put(113.4, 377.2, R(498.0), R(514.4), [line1(115, 118, 497, 500)], frame(left="soft", bottom="soft"), align="LEFT")
 g.put(394.0, X1, R(483.4), R(514.4), hang(lines_in(396, 410, 485, 505), 397.0), right_cell(False), align="LEFT",
       line=1430)
 # 여성 장기위탁 교육 과정
@@ -191,7 +193,7 @@ tag(g, 322.1, 374.2, R(545.3), R(560.5), "지적사항 개선")
 g.put(113.4, 117.0, R(560.5), R(627.1), [], frame(left="soft", bottom="soft"))
 g.put(117.0, 374.2, R(560.5), R(563.5), [], "1")
 for a, e, hx, bx in ((117.0, 243.5, 159, 122.1), (247.5, 374.2, 291, 252.4)):
-    g.put(a, e, R(563.5), R(579.5), [line1(hx, hx + 1, 566, 570)], frame("#E3E3E3", top="soft", left="soft",
+    g.put(a, e, R(563.5), R(579.5), [line1(hx, hx + 2, 566, 570)], frame("#E3E3E3", top="soft", left="soft",
                                                                          right="soft"))
     g.put(a, e, R(579.5), R(624.5), hang(lines_in(bx - 1.5, bx + 12, 583, 615), bx),
           frame(left="soft", right="soft", bottom="soft"), align="LEFT", line=1300)
@@ -213,7 +215,7 @@ for a, e, hx, bx in ((X0, 294.0, 100, 62.5), (307.5, X1, 340, 313.4)):
     g.put(a, e, 0, 1, [line1(hx, hx + 5, 662, 666)], frame(HEAD, **BOX), bold=True)
     g.put(a, e, 1, 2, lines_in(bx - 1, bx + 3, 679, 715), frame(left="soft", right="soft", bottom="soft"),
           align="LEFT", line=1440)
-g.put(294.0, 307.5, 0, 2, "+", size=1200, bold=True, color="#9A9A9A")
+g.put(294.0, 307.5, 0, 2, "+", size=1200, bold=True, color="#9A9A9A", fit=False)
 block(g, 659.5)
 
 # ---------------------------------------------------------------------------
@@ -236,7 +238,7 @@ g.put(547.8, X1, R(739.4), R(794.8), [], frame(right="mid"))
 axis = "#E6E6E6"
 for (a, b, c, e), tx, rise, high, low, first in PANELS:
     g.put(a, e, R(739.4), R(752.5), [line1(tx, tx + 1, 738, 743)], frame("#E3E3E3", top="soft", left="soft",
-                                                                         right="soft"))
+                                                                         right="soft"), line=1140)
     cols = ((a, b), (b, c), (c, e))
     content = {(756.5, 1): ([[(rise, 800, True, WHITE)]], "#3C3C3C"),
                (756.5, 2): ([[(high, 880, True, INK)]], None),
@@ -249,7 +251,8 @@ for (a, b, c, e), tx, rise, high, low, first in PANELS:
             text, fill = content.get((y0, k), ([], None))
             edges = dict(left="soft" if k == 0 else None, right="soft" if k == 2 else None,
                          bottom="soft" if y1 == 794.8 else None, top="soft" if y0 == 785.5 else None)
-            g.put(x0, x1, R(y0), R(y1), text, frame(fill, **{s: v for s, v in edges.items() if v}), line=880)
+            g.put(x0, x1, R(y0), R(y1), text, frame(fill, **{s: v for s, v in edges.items() if v}),
+                  line=760 if y0 == 785.5 else 880)
 block(g, 735.2)
 
 kit.finish(target, end=801.0)

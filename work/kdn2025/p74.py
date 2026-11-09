@@ -41,7 +41,15 @@ GRAYTXT = "#8A8A8A"
 
 
 def tag(g, x0, x1, r0, r1, content, fill, ratio=88, **kw):
-    """Small tag / pill cell: no 장평 squeeze for the default 5 pt padding, 0.6 pt side padding."""
+    """Small tag / pill cell: 0.6 pt side padding instead of 5 pt, 장평 fitted to that width."""
+    items = content if isinstance(content, list) else [content]
+    inner = (to_x(x1) - to_x(x0) - 120) / 100 * 0.96
+    for item in items:
+        runs = [(item, kw.get("size", 1080))] if isinstance(item, str) else (
+            runs_of(item) if isinstance(item, dict) else item)
+        need = text_width(runs, ratio)
+        if need > inner:
+            ratio = int(ratio * inner / need)
     g.put(x0, x1, r0, r1, content, fill, fit=False, ratio=ratio, **kw)
     key = (r0, g.xs.index(to_x(x0)))
     g.items[key] = g.items[key][:7] + (dict(left=60, right=60),)
@@ -116,7 +124,7 @@ for k, (a, t0, t1, e, lx) in enumerate(boxes):
     first = line1(lx - 2, lx + 3, 196, 200)
     g.put(a, t0, 2, 3, [], frame(left="soft"))
     tag(g, t0, t1, 2, 3, [runs_of(first, WHITE, x1=t1 - 1)], TAGDARK, line=1050)
-    g.put(t1, e, 2, 3, [strip_runs(runs_of(first, x0=t1 - 1))], frame(right="soft"), align="LEFT", line=1300)
+    g.put(t1, e, 2, 3, [strip_runs(runs_of(first, x0=t1 - 1))], frame(right="soft"), align="LEFT", line=1280)
     g.put(a, e, 3, 4, [line1(lx - 4, lx + 5, 210, 214)], frame(left="soft", right="soft"), line=1300)
     g.put(a, e, 4, 5, [], frame(left="soft", right="soft", bottom="soft"))
 g.put(253.0, 267.0, 1, 4, "+", size=1500, bold=True, color="#9A9A9A", fit=False)
@@ -202,6 +210,13 @@ def bullet(item):
     return [("◎ ", 800, False, "#6A6A6A")] + [(t, s, False, INK) for t, s in runs]
 
 
+def value(text, bold):
+    """Chart value label: number at 7.4 pt, a trailing unit (kg) smaller, as in the image."""
+    if text.endswith("kg"):
+        return [(text[:-2], 740 if bold else 720, bold, INK), ("kg", 560, bold, INK)]
+    return [(text, 780 if bold else 740, bold, INK)]
+
+
 def card_row(name, top, pair, hs):
     """Two cards side by side. Left card: number at the left; right card: number at the right."""
     left, right = pair
@@ -226,13 +241,13 @@ def card_row(name, top, pair, hs):
         g.put(a, e, 7, 8, [], frame(left="mid", right="mid", bottom="mid"))
         if card["chart"]:
             before, after, caption = card["chart"]
-            g.put(c0, cm, 2, 3, before, size=780, line=900)
-            g.put(cm, e, 2, 3, after, frame(right="mid"), size=800, bold=True, line=900)
+            tag(g, c0, cm, 2, 3, [value(before, False)], "1", ratio=84, line=900)
+            tag(g, cm, e, 2, 3, [value(after, True)], frame(right="mid"), ratio=84, line=900)
             g.put(c0, cm, 3, 5, [], frame("#DDDDDD", bottom="soft"))
             g.put(cm, e, 3, 5, [], frame("#8C8C8C", bottom="soft", right="mid"))
-            g.put(c0, cm, 5, 6, "’24년", frame("#EEEEEE"), size=720, line=760)
-            g.put(cm, e, 5, 6, "’25년", frame("#EEEEEE", right="mid"), size=720, bold=True, line=760)
-            g.put(c0, e, 6, 7, caption, frame(right="mid"), size=760, line=860)
+            g.put(c0, cm, 5, 6, "’24년", frame("#EEEEEE"), size=720, line=740)
+            g.put(cm, e, 5, 6, "’25년", frame("#EEEEEE", right="mid"), size=720, bold=True, line=740)
+            tag(g, c0, e, 6, 7, caption, frame(right="mid"), ratio=84, size=720, line=860)
         else:
             g.put(c0, e, 2, 6, [], frame("#E4E4E4", top="soft", left="soft", right="mid"))
             g.put(c0, e, 6, 7, "AI 러닝센터", frame("#4A4A4A", right="mid"), size=760, color=WHITE, line=860)

@@ -83,12 +83,12 @@ def label(g, line, rows):
     tight(g, X0, 0, 40, 40)
 
 
-def tag_rows(g, rows, tags):
+def tag_rows(g, tags):
     """Rows of 'tag | text' pairs; tags: (r, tag x0, tag x1, column end, tag line, x split, fill, color)."""
     for r, t0, t1, e, line, split, fill, color in tags:
         g.put(t0, t1, r, r + 1, [runs_of(line, color, x1=split)], fill, line=1000)
         tight(g, t0, r, 20, 20)
-        g.put(t1, e, r, r + 1, [strip_runs(runs_of(line, x0=split))], frame(left=None), align="LEFT")
+        g.put(t1, e, r, r + 1, [strip_runs(runs_of(line, x0=split))], align="LEFT")
         tight(g, t1, r, 80, 40)
 
 
@@ -145,7 +145,7 @@ g.put(107.6, MID, 1, 2, [line1(150, 155, 148, 153)], frame(HEADS), line=1200)
 g.put(MID, X1, 1, 2, [line1(365, 366, 148, 153)], frame(HEADS, left="dot"), line=1200)
 g.put(MID, X1, 2, 3, [], frame(left="dot"))
 tag_rows(g, [(3, 113.5, 151.8, MID, line1(117, 118, 170, 174), 150.0, TAG, INK),
-             (5, 113.5, 151.8, MID, line1(117, 118, 199, 203), 150.0, TAG, INK)], [])
+             (5, 113.5, 151.8, MID, line1(117, 118, 199, 203), 150.0, TAG, INK)])
 for r, y in ((3, 170), (5, 199)):
     line = line1(340, 342, y, y + 4)
     g.put(MID, 336.1, r, r + 1, [], frame(left="dot"))
@@ -153,10 +153,10 @@ for r, y in ((3, 170), (5, 199)):
     tight(g, 336.1, r, 20, 20)
     g.put(374.3, X1, r, r + 1, [strip_runs(runs_of(line, x0=372.0))], align="LEFT")
     tight(g, 374.3, r, 80, 40)
-g.put(151.8, MID, 4, 5, [line1(154, 155, 186, 190)], align="LEFT", line=1030)
+g.put(151.8, MID, 4, 5, [line1(153, 155, 186, 190)], align="LEFT", line=1030)
 tight(g, 151.8, 4, 80, 40)
 g.put(MID, 374.3, 4, 5, [], frame(left="dot"))
-g.put(374.3, X1, 4, 5, [line1(377, 378, 186, 190)], align="LEFT", line=1030)
+g.put(374.3, X1, 4, 5, [line1(376, 378, 186, 190)], align="LEFT", line=1030)
 tight(g, 374.3, 4, 80, 40)
 g.put(107.6, MID, 6, 7, [], frame(bottom="soft"))
 g.put(MID, X1, 6, 7, [], frame(left="dot", bottom="soft"))
@@ -166,7 +166,7 @@ block(g, 146.7)
 titled("title-3na", line1(55, 60, 230, 236), 229.5, [("NEW ", 560), ("신규", 880)], 517.0)
 background("bg-3na", line1(62, 63, 256, 262), line1(160, 170, 256, 262), 252.9)
 
-g = Grid("work-3na", [X0, 102.7, 107.6, MID, X1], [290, 1380, 340, 3920])
+g = Grid("work-3na", [X0, 102.7, 107.6, MID, X1], [290, 1380, 340, 3800])
 label(g, line1(62, 63, 298, 303), 4)
 g.put(107.6, X1, 0, 1, [], frame(top="soft"))
 g.put(107.6, MID, 1, 2, [line1(140, 145, 280, 285)], frame(HEADS), line=1200)
@@ -211,12 +211,11 @@ for a, p0, p1, e, x in ((107.6, 110.5, 139.1, MID, 114), (MID, 355.1, 383.9, X1,
     tight(g, p0, 1, 20, 20)
     g.put(p1, e, 1, 2, [strip_runs(runs_of(head, x0=split))], frame(HEADS), align="LEFT", line=1100)
     tight(g, p1, 1, 60, 40)
-for r in (0, 2, 3, 4, 5):
-    if r in (0, 2, 5):
-        g.put(MID, X1, r, r + 1, "▼" if r == 5 else [], frame(left="dot"), size=700, color=ARROW, line=600)
 g.put(107.6, X1, 0, 1, [], frame(top="soft"))
 g.put(107.6, MID, 2, 3, [], frame())
-g.put(107.6, MID, 5, 6, "▼", size=700, color=ARROW, line=600)
+g.put(MID, X1, 2, 3, [], frame(left="dot"))
+g.put(107.6, MID, 5, 6, "▼", size=600, color=ARROW, line=480)
+g.put(MID, X1, 5, 6, "▼", frame(left="dot"), size=600, color=ARROW, line=480)
 for r, y in ((3, 574), (4, 591)):
     left = line1(117, 118, y, y + 4)
     g.put(110.5, 149.0, r, r + 1, [left], TAG, line=1000)
@@ -249,6 +248,6 @@ g.put(MID, X1, 2, 3, hang(lines_in(335, 340, 707, 745), 336.1), frame(left="dot"
       line=1540)
 block(g, 687.3)
 
-outcome("result-4", line1(65, 70, 776, 781), lines_in(115, 120, 767, 787), 766.2, 3460)
+outcome("result-4", line1(65, 70, 776, 781), lines_in(115, 120, 767, 787), 766.2, 3460, line=1400)
 
 kit.finish(target, end=803.0)
